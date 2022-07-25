@@ -2,7 +2,7 @@ body {
     font-size: 18px;
     font-family: Verdana, sans-serif;
     overflow: hidden;
-    background-color: black;
+    background-color: #222;
 }
 
 div.backgroundTranslator {
@@ -107,4 +107,11 @@ a.topLink.active {
 img.illus {
     width: 500px;
     height: auto;
+}
+
+img#logo {
+    position: fixed;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.2s;
 }

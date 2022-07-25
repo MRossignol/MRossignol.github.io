@@ -1,4 +1,0 @@
-
-window.addEventListener('resize', () => {
-    console.log(window.clientWidth, window.clientHeight);
-});
