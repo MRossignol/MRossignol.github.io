@@ -1,9 +1,17 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-size: 18px;
     font-family: Verdana, sans-serif;
     overflow: hidden;
     background-color: #222;
 }
+
+/**************/
+/* BACKGROUND */
+/**************/
 
 div.backgroundTranslator {
     position: fixed;
@@ -33,21 +41,37 @@ div#background-hd {
     z-index: 2;
 }
 
+/***********/
+/* CONTENT */
+/***********/
+
 div.contentWrapper {
-    display: grid;
-    width: 960px;
-    margin: 50px auto 50px auto;
-    position: relative;
-    z-index: 10;
-    background-color: rgba(0, 0, 0, .5);
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 3;
 }
 
 div.content {
+    position: fixed;
+    top: 0px;
+    left: 0px;
     color: white;
-    grid-column: 1;
-    grid-row: 1;
-    line-height: 1.5em;
-    padding: 24px;
+    overflow: auto;
+}
+
+body.desktop div.content {
+    width: calc(100% - 400px);
+    height: 100%;
+    left: 400px;
+}
+
+body.mobile div.content {
+    width: 100%;
+    height: calc(100% - 48px);
 }
 
 @keyframes content-insert {
@@ -65,6 +89,10 @@ div.content.insert {
     animation: content-insert 1s ease-in;
 }
 
+div.content.fastInsert {
+    animation: content-insert .5s ease-in;
+}
+
 @keyframes content-remove {
     from {
 	filter: blur(0px);
@@ -80,38 +108,107 @@ div.content.remove {
     animation: content-remove 1s ease-out;
 }
 
-div.linkBox {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    margin-top: 30px;
-    position: relative;
-    z-index: 10;
-    /* background-color: rgba(0, 0, 0, .5); */
-    padding: 16px;
+/********/
+/* LOGO */
+/********/
+
+div.contentWrapper.intro {
+    z-index: 5;
 }
 
-div.linkSpacer {
-    flex: 1 1 10px;
-}
-
-a.topLink {
-    color: #ccc;
-    cursor: pointer;
-}
-
-a.topLink.active {
-    color: white;
-}
-
-img.illus {
-    width: 500px;
-    height: auto;
+div.content.intro {
+    width: 100% !important;
+    height: 100% !important;
+    top: 0px !important;
+    left: 0px !important;
+    overflow: hidden !important;
 }
 
 img#logo {
     position: fixed;
     z-index: 20;
     opacity: 0;
-    transition: opacity 0.2s;
+}
+
+
+/**********/
+/* LETTER */
+/**********/
+
+div.content.main {
+    text-align: center;
+}
+
+body.desktop img#letter {
+    height: 94%;
+    margin: auto;
+    margin-top: 3%;
+    background-color: rgba(0, 0, 0, .4);
+}
+
+
+/********/
+/* MENU */
+/********/
+
+div.menu {
+    position: fixed;
+    overflow: hidden;
+    z-index: 4;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+body.desktop div.menu {
+    top: calc(100% - 350px);
+    left: 50px;
+    width: 300px;
+    height: auto;
+}
+
+body.mobile div.menu {
+    width: 100%;
+    left: 0px;
+    height: 48px;
+    top: calc(100% - 48px);
+    display: flex;
+}
+
+
+div.menu.about, div.menu.main, div.menu.about, div.menu.music, div.menu.contact {
+    opacity: 1;
+}
+
+div.menu.intro {
+    opacity: 0;
+}
+
+body.desktop div.menuItem {
+    width: 100%;
+    height: 64px;
+    padding-top: 20px;
+    padding-left: 20px;
+    font-size: 20px;
+    font-family: serif;
+    cursor: pointer;
+    color: white;
+    transition: background-color 1s;
+}
+
+body.mobile div.menuItem {
+    flex: 1;
+    height: 48px;
+    padding-top: 12px;
+    overflow: hidden;
+    text-align: center;
+    font-size: 16px;
+    font-family: serif;
+    cursor: pointer;
+    color: white;
+    transition: background-color 1s;
+}
+
+div.menuItem:hover {
+    background-color: rgba(255, 255, 255, .03);
+    transition: background-color .3s;
 }

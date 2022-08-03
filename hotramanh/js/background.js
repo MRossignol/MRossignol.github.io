@@ -1,8 +1,9 @@
 
-const bgNaturalWidth = 3480;
-const bgNaturalHeight = 2320;
+( function() {
+  const bgNaturalWidth = 3480;
+  const bgNaturalHeight = 2320;
 
-let adjustBackgroundSize = () => {
+  let adjustBackgroundSize = () => {
     let w = window.innerWidth;
     let h = window.innerHeight;
     let ldBackground = document.getElementById('background-ld');
@@ -15,8 +16,8 @@ let adjustBackgroundSize = () => {
     let targetWidth = targetHeight * bgNaturalWidth / bgNaturalHeight;
     
     if (targetWidth < minW) {
-	targetWidth = minW;
-	targetHeight = targetWidth * bgNaturalHeight / bgNaturalWidth;
+      targetWidth = minW;
+      targetHeight = targetWidth * bgNaturalHeight / bgNaturalWidth;
     }
     let bgW = Math.round(targetWidth);
     let bgH = Math.round(targetHeight);
@@ -43,21 +44,20 @@ let adjustBackgroundSize = () => {
     hdBackground.style.left = x+'px';
 
     ldBackground.style.opacity = 1;
-}
+  };
 
-let currentTranslation = {
+  let currentTranslation = {
     ld: {x: 0, y: 0},
     hd: {x: 0, y: 0}
-};
+  };
 
-let currentTranslationEndTime = {
+  let currentTranslationEndTime = {
     ld: {x: 0, y: 0},
     hd: {x: 0, y: 0}
-};
+  };
 
-let moveBackground = (type, direction) => () => {
+  let moveBackground = (type, direction) => () => {
     if (currentTranslationEndTime[type][direction] - Date.now() > 100) return;
-    console.log(type, direction);
     let elem = document.getElementById('background-'+type+'-trans-'+direction);
     let sign = currentTranslation[type][direction] > 0 ? -1 : 1;
     let size = Math.min(window.innerWidth, window.innerHeight);
@@ -67,18 +67,20 @@ let moveBackground = (type, direction) => () => {
     currentTranslationEndTime[type][direction] = Date.now() + 1000*duration;
     elem.style.transition = 'transform ease-in-out '+duration+'s';
     elem.style.transform = 'translate'+direction.toUpperCase()+'('+trans+'px)';
-}
+  };
 
 
-window.addEventListener('resize', adjustBackgroundSize);
+  window.addEventListener('resize', adjustBackgroundSize);
 
-window.addEventListener('DOMContentLoaded', adjustBackgroundSize);
+  window.addEventListener('DOMContentLoaded', adjustBackgroundSize);
 
-window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', () => {
     ['ld', 'hd'].forEach ( (type) => {
-	['x', 'y'].forEach ( (direction) => {
-	    document.getElementById('background-'+type+'-trans-'+direction).addEventListener('transitionend', moveBackground(type, direction));
-	    setTimeout(moveBackground(type, direction), 2000);
-	});
+      ['x', 'y'].forEach ( (direction) => {
+	document.getElementById('background-'+type+'-trans-'+direction).addEventListener('transitionend', moveBackground(type, direction));
+	setTimeout(moveBackground(type, direction), 2000);
+      });
     });
-});
+  });
+  
+}) ();
