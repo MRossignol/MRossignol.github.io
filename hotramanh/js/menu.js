@@ -105,7 +105,7 @@
 
     processSectionLinks: (elem) => {
       Array.from(elem.getElementsByClassName('sectionLink')).forEach((e) => {
-	e.addEventListener('touchend', handleLinkClick);
+	// e.addEventListener('touchend', handleLinkClick);
 	e.addEventListener('click', handleLinkClick);
       });
     }
