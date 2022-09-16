@@ -1,0 +1,76 @@
+<title><%- title %> | Lonofi</title>
+
+<meta name="description" content="Lonofi is a web app to stream, create and share ambiences and music.">
+<meta name="keywords" content="Lonofi, music, sound, sound effects, audio, soundtrack, soundscape, ambience, ambiance, creative commons, royalty free music, free music, free sounds, freesound, ASMR, white noise, relaxing music, study music, nature sounds">
+
+<meta property="og:title" content="<%- title %> | Lonofi">
+<meta property="og:description" content="Lonofi is a web app to stream, create and share ambiences and music.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://lonofi.com/img/fb_illus-1.png">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="fr_FR">
+<meta property="fb:app_id" content="293514784794544">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@lonofi">
+<meta name="twitter:title" content="<%= title %> | Lonofi">
+<meta name="twitter:description" content="Lonofi is a web app to stream, create and share ambiences and music.">
+<meta name="twitter:image" content="https://lonofi.com/img/fb_illus-1.png">
+
+<link rel="canonical"  href="<%= urls.canonical %>" />
+<link rel="alternate" hreflang="x-default" href="<%= urls.base %>" />
+<% Object.keys(urls.lang).forEach( l => { -%>
+  <link rel="alternate" hreflang="<%= l %>" href="<%= urls.lang[l] %>" />
+<% }); %>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@graph": [
+      {
+        "@context": "http://schema.org",
+        "@type": "WebSite",
+        "@id":"https://home.lonofi.com",
+        "name": "Lonofi",
+        "description": "Lonofi is a web app to stream, create and share ambiences and music.",
+        "keywords": "Lonofi, music, sound, sound effects, audio, soundtrack, soundscape, ambience, ambiance, creative commons, royalty free music, free music, free sounds, freesound, ASMR, white noise, relaxing music, study music, nature sounds",
+        "image": "https://lonofi.com/img/fb_illus.jpg",
+        "url":"https://home.lonofi.com",
+        "headline": "Lonofi | Stream, design and share your soundscapes",
+        "about": {
+          "@id": "https://en.wikipedia.org/wiki/Soundscape"
+        },
+        "publisher": {
+          "@id": "https://lonofi.com"
+        }
+      },
+      {
+        "@context": "http://schema.org",
+        "@type": "Thing",
+        "@id": "https://en.wikipedia.org/wiki/Soundscape",
+        "name": "soundscape",
+        "alternateName": "sound scene",
+        "url": "https://en.wikipedia.org/wiki/Soundscape"
+      },
+      {
+        "@context": "http://schema.org",
+        "@type": "Organization",
+        "@id": "https://lonofi.com",
+        "name": "Lonofi",
+        "url": "https://lonofi.com",
+        "logo": "https://lonofi.com/img/logo_large.png",
+        "email": "contact@lonofi.com",
+        "contactPoint": [{
+          "@type": "ContactPoint",
+          "email": "contact@lonofi.com",
+          "url": "https://lonofi.com/contact.html",
+          "contactType": "customer service"
+        }],
+        "sameAs": [
+          "http://www.facebook.com/lonofi",
+          "http://www.twitter.com/lonofi"
+        ]
+      }
+    ]
+  }
+</script>

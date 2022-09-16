@@ -1,4 +1,4 @@
-(function() {
+( function() {
 
   let hta = getHTA();
   
@@ -35,9 +35,6 @@
   let imgPromise = new Promise((resolve, reject) => {
     logoImg.onload = resolve;
   });
-  
-
-  let resizeEventListenerId = 0;
 
   hta.navigation.registerSection({
 
@@ -53,7 +50,7 @@
     
     getContent: () => new Promise((resolve, reject) => {
       imgPromise.then(() => {
-	resolve('<a class="sectionLink" href="main.html"><img id="logo" src="img/name.png"/></a>');
+	resolve('<a class="sectionLink fullPageLink" href="main.html"><img id="logo" src="img/name.png"/></a>');
       });
     }),
 
@@ -73,5 +70,5 @@
     cleanup: () => {}
     
   });
-    
+  
 }) ();

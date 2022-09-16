@@ -7,6 +7,25 @@ function getHTA() {
   return window._hta;
 }
 
+function makeDiv() {
+  let res = document.createElement('div');
+  for (let i=0; i<arguments.length; i++) res.classList.add(arguments[i]);
+  return res;
+}
+
+function setElemHTML (div, html) {
+  div.innerHTML = html;
+  return div;
+}
+
+function sectionLink (section) {
+  if (!section.endsWith('html') && !section.endsWith('htm')) section += '.html';
+  let a = document.createElement('a');
+  a.classList.add('sectionLink');
+  a.href = section;
+  return a;
+}
+
 function randomID (length) {
   if (!length) length = 12;
   let hta = getHTA();

@@ -10,20 +10,36 @@
       waitingToTransition = null;
 
   let documentLoaded = false;
+
+  let sectionChangeCallbacks = [];
   
+  function registerSectionChangeCallback (callback) {
+    sectionChangeCallbacks.push(callback);
+    setTimeout(() => {
+      console.log(currentSection);
+      console.log(nextSection);
+      if (currentSection) callback(currentSection.name);
+      else if (nextSection) callback(nextSection.name);
+    }, 100);
+  }
   
   function ContentArea (section) {
-
+    
     this.section = section;
     
     let self = this;
     
-    let contentWrapper = document.getElementsByClassName('contentWrapper')[0];
-    let menu = document.getElementsByClassName('menu')[0];
+    let contentWrapper = document.body;
 
-    this.elem = document.createElement('div');
-    this.elem.classList.add(section.name);
-    this.elem.classList.add('content');
+    let re = makeDiv('contentFrame', section.name);
+    let elem = re;
+
+    if (section.name!='intro') {
+      elem = makeDiv('content', section.name);
+      re.appendChild(makeDiv('contentFlex1'));
+      re.appendChild(elem);
+      re.appendChild(makeDiv('contentFlex2'));
+    }
     
     this.load = () => new Promise ((resolve, reject) => {
       
@@ -38,62 +54,64 @@
 
       if (currentContent) {
 	currentContent.disappear();
-	menu.classList.remove(currentContent.section.name);
+	document.body.classList.remove(currentContent.section.name);
       }
-      menu.classList.add(section.name);
+      document.body.classList.add(section.name);
       
-      section.getContent().then((text) => {
+      section.getContent(elem).then((text) => {
 	
-	self.elem.innerHTML = text;
-	self.elem.classList.add(currentContent ? 'insert' : 'fastInsert');
-	contentWrapper.appendChild(self.elem);
+	if (text) elem.innerHTML = text;
+	
+	re.classList.add(currentContent ? 'insert' : 'fastInsert');
+	contentWrapper.appendChild(re);
 	if (section.layout) {
 	  section.layout();
 	}
 
-	nextSection = section;
-
 	setTimeout(() => {
 	  if (section.onAppearing) section.onAppearing();
-	  hta.sectionLinks.processSectionLinks(self.elem);
+	  hta.menu.processSectionLinks(elem);
 	  if (section.preloadNext) section.preloadNext();
 	});
 	
 	    
-	let onAnimationEnd = () => {
-	  self.elem.removeEventListener('animationend', onAnimationEnd);
-	  self.elem.classList.remove('insert');
-	  self.elem.classList.remove('fastInsert');
+	let oae = () => {
+	  re.removeEventListener('animationend', oae);
+	  re.classList.remove('insert');
+	  re.classList.remove('fastInsert');
 	  if (currentContent) currentContent.destroy();
 	  currentContent = self;
 	  if (section.onAppeared) section.onAppeared();
 	  resolve();
 	};
 	    
-	self.elem.addEventListener('animationend', onAnimationEnd);
+	re.addEventListener('animationend', oae);
       }, giveUp);
       
     });
 
     this.disappear = () => {
-      this.elem.classList.add('remove');
+      re.classList.add('remove');
       if (section.onDisappearing) section.onDisappearing();
     };
 
     this.reappear = () => {
-      this.elem.classList.remove('remove');
+      re.classList.remove('remove');
       if (section.onAppearing) section.onAppearing();
     };
 
     this.destroy = () => {
       if (section.cleanup) section.cleanup();
-      contentWrapper.removeChild(this.elem);
+      try {
+	contentWrapper.removeChild(re);
+      } catch (e) {}
     };
     
   }
 
   
   function openSection (sectionName) {
+    
     if (currentSection && sectionName == currentSection.name || !hta.sections[sectionName]) return;
     if (inTransition) {
       if (inTransition == sectionName) waitingToTransition = null;
@@ -102,20 +120,22 @@
     }
     inTransition = sectionName;
 
-    hta.sectionLinks.activate(sectionName);
+    sectionChangeCallbacks.forEach( cb => cb(sectionName, currentSection ? currentSection.name : '') );
 
-    let section = hta.sections[sectionName];
+    nextSection = hta.sections[sectionName];
+    if (nextSection.preload) nextSection.preload();
     
-    new ContentArea(section).load().then(() => {
+    new ContentArea(nextSection).load().then(() => {
       inTransition = false;
-      currentSection = section;
+      currentSection = nextSection;
       nextSection = null;
       if (waitingToTransition) {
 	openSection(waitingToTransition);
 	waitingToTransition = null;
       }
     }, () => {
-      hta.sectionLinks.activate(currentSection);
+      sectionChangeCallbacks.forEach( cb => cb(currentSection.name, sectionName) );
+      nextSection = null;
     });
   };
 
@@ -127,6 +147,21 @@
       document.body.classList.remove('mobile');
       document.body.classList.add('desktop');
     }
+  }
+
+  
+  function sectionFromUrl() {
+    let section = window.location.pathname.replace(/^.*\//, '').replace(/\..*/, '');
+    return hta.sections[section] ? section : 'intro';
+  }
+
+  
+  function registerSection (settings) {
+    let name = settings.name;
+    if (documentLoaded && settings.hasOwnProperty('init')) {
+      settings.init();
+    }
+    hta.sections[name] = settings;
   }
   
   window.addEventListener('DOMContentLoaded', () => {
@@ -140,42 +175,27 @@
     documentLoaded = true;
 
     window.addEventListener('popstate', function () {
-      openSection(window.location.pathname.replace(/^\//, '').replace(/\..*/, ''));
+      openSection(sectionFromUrl());
     });
 
-    let section = window.location.pathname.replace(/^\//, '').replace(/\..*/, '');
-    openSection(hta.sections[section] ? section : 'intro');
+    openSection(sectionFromUrl());
 
-    let resizeThrottle = null;
-    
-    window.addEventListener('resize', () => {
-      if (resizeThrottle) return;
-      resizeThrottle = setTimeout(() => {
-	resizeThrottle = null;
-	detectOrientation();
-	if (currentSection && currentSection.onResize) currentSection.onResize();
-	if (nextSection && nextSection.onResize) nextSection.onResize();
-      }, 50);
+    hta.layout.onResize((w,h) => {
+      if (currentSection && currentSection.onResize) currentSection.onResize(w,h);
+      if (nextSection && nextSection.onResize) nextSection.onResize(w,h);
     });
-
-
     
   });
 
-  
-  function registerSection (settings) {
-    let name = settings.name;
-    if (documentLoaded && settings.hasOwnProperty('init')) {
-      settings.init();
-    }
-    hta.sections[name] = settings;
-  }
 
+  
   
   hta.navigation = {
     registerSection: registerSection,
     openSection: openSection,
-    currentSection: () => currentSection
+    onSectionChange: registerSectionChangeCallback,
+    currentSection: () => currentSection,
+    nextSection: () => nextSection
   };
   
 }) ();

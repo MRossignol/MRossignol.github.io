@@ -4,9 +4,51 @@
 
 body {
     font-size: 18px;
-    font-family: Verdana, sans-serif;
+    font-family: Vollkorn, serif;
     overflow: hidden;
     background-color: #222;
+    color: white;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+/**********************/
+/* GENERAL RESPONSIVE */
+/**********************/
+
+body.mobile *.desktop {
+    display: none;
+}
+
+body.desktop *.mobile {
+    display: none;
+}
+
+/**************/
+/* SCROLLBARS */
+/**************/
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 100px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, .15);
+    box-shadow: inset -1px 0 1px rgba(0, 0, 0, .3);
+    border-radius: 100px;
+}
+
+body.poetry-of-streetlights ::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, .15);
+    box-shadow: inset -1px 0 1px rgba(0, 0, 0, .3);
 }
 
 /**************/
@@ -17,61 +59,110 @@ div.backgroundTranslator {
     position: fixed;
     top: 0px;
     left: 0px;
+    z-index: 0;
+    display: none;
 }
 
-div.background {
+img.background {
     position: absolute;
-    background-repeat: no-repeat;
-    opacity: 0.5;
-    transition: opacity .5s;
+    opacity: 0;
+    transition: opacity 1s;
 }
 
-div#background-ld {
-    background-image: url("../img/000061-small-comp.webp");
-    background-size: 100% 100%;
-    background-position: top left;
-    filter: blur(3px);
+img#background-ld {
     z-index: 1;
 }
 
-div#background-hd {
-    background-image: url("../img/000061-comp.webp");
-    background-size: 100% 100%;
-    background-position: top left;
+img#background-hd {
     z-index: 2;
+}
+
+div.albumBackground {
+    z-index: 1;
+    opacity: 0;
+    display: hidden;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    background-color: #69f;
+    background-image: url('../img/album-background/background-435.jpg');
+    transition: opacity .5s;
 }
 
 /***********/
 /* CONTENT */
 /***********/
 
-div.contentWrapper {
+div.contentFrame {
     position: fixed;
     top: 0px;
     left: 0px;
-    width: 100%;
     height: 100%;
-    overflow: hidden;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    pointer-events: none;
     z-index: 3;
 }
 
+body.desktop div.contentFlex1 {
+    height: 1px;
+    flex-basis: 200px;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+body.mobile div.contentFlex1 {
+    height: 1px;
+    flex-basis: 0px;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+body.desktop div.contentFlex2 {
+    height: 1px;
+    flex-basis: 40px;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+body.mobile div.contentFlex2 {
+    height: 1px;
+    flex-basis: 0px;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
 div.content {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    color: white;
-    overflow: auto;
+    pointer-events: auto;
+    font-size: 20px;
+    position: relative;
 }
 
 body.desktop div.content {
-    width: calc(100% - 400px);
-    height: 100%;
-    left: 400px;
+    height: calc(100% - 40px);
+    margin: 20px 0px 20px 0px;
+    flex-basis: 800px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: auto;
+}
+
+body.desktop.wideContent div.content {
+    flex-grow: 100;
+    max-width: 1200px;
 }
 
 body.mobile div.content {
-    width: 100%;
-    height: calc(100% - 48px);
+    height: calc(100% - 52px);
+    flex-basis: 100%;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: auto;
 }
 
 @keyframes content-insert {
@@ -85,12 +176,12 @@ body.mobile div.content {
     }
 }
 
-div.content.insert {
-    animation: content-insert 1s ease-in;
+div.insert {
+    animation: content-insert .5s ease-in;
 }
 
-div.content.fastInsert {
-    animation: content-insert .5s ease-in;
+div.fastInsert {
+    animation: content-insert .3s ease-in;
 }
 
 @keyframes content-remove {
@@ -104,55 +195,62 @@ div.content.fastInsert {
     }
 }
 
-div.content.remove {
-    animation: content-remove 1s ease-out;
+div.remove {
+    animation: content-remove .5s ease-out;
 }
 
-/********/
-/* LOGO */
-/********/
-
-div.contentWrapper.intro {
-    z-index: 5;
-}
-
-div.content.intro {
-    width: 100% !important;
-    height: 100% !important;
-    top: 0px !important;
-    left: 0px !important;
-    overflow: hidden !important;
-}
-
-img#logo {
-    position: fixed;
-    z-index: 20;
-    opacity: 0;
-}
-
-
-/**********/
-/* LETTER */
-/**********/
-
-div.content.main {
+div.pageTitle {
+    font-weight: 500;
+    font-size: 40px;
     text-align: center;
+    margin-top: 60px;
+    margin-bottom: 80px;
+    text-shadow: 0px 0px 8px rgba(0, 0, 0, 1);
 }
-
-body.desktop img#letter {
-    height: 94%;
-    margin: auto;
-    margin-top: 3%;
-    background-color: rgba(0, 0, 0, .4);
-}
-
 
 /********/
 /* MENU */
 /********/
 
+body.desktop div.contentFrame.menu {
+    z-index: 4;
+}
+
+body.desktop div.contentFrame.above div.content {
+    pointer-events: none;
+}
+
+body.desktop div.contentFlex1.menuHolder {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+body.desktop div.menuFlex1 {
+    height: 1px;
+    flex-basis: 20px;
+    flex-shrink: 0;
+    flex-grow: 2;
+}
+
+body.desktop div.menuFlex2 {
+    height: 1px;
+    flex-basis: 20px;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+body.desktop div.flexMenuHolder {
+    position: relative;
+    height: 100%;
+    flex-basis: 150px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    pointer-events: auto;
+}
+
 div.menu {
-    position: fixed;
+    position: absolute;
     overflow: hidden;
     z-index: 4;
     opacity: 0;
@@ -160,44 +258,78 @@ div.menu {
 }
 
 body.desktop div.menu {
-    top: calc(100% - 350px);
-    left: 50px;
-    width: 300px;
-    height: auto;
-}
-
-body.mobile div.menu {
-    width: 100%;
+    top: calc(100% - 400px);
     left: 0px;
-    height: 48px;
-    top: calc(100% - 48px);
-    display: flex;
+    width: 170px;
+    height: auto;
+    padding: 10px;
 }
 
 
-div.menu.about, div.menu.main, div.menu.about, div.menu.music, div.menu.contact {
+body.about div.menu, body.main div.menu, body.about div.menu, body.music div.menu, body.contact div.menu, body.media div.menu, body.poetry-of-streetlights div.menu {
     opacity: 1;
 }
 
-div.menu.intro {
-    opacity: 0;
-}
-
-body.desktop div.menuItem {
+body.desktop a.menuItem {
+    display: block;
+    text-decoration: none;
     width: 100%;
-    height: 64px;
-    padding-top: 20px;
-    padding-left: 20px;
+    height: 62px;
+    padding-top: 10px;
     font-size: 20px;
     font-family: serif;
     cursor: pointer;
     color: white;
+    text-align: left;
     transition: background-color 1s;
 }
 
-body.mobile div.menuItem {
+body.desktop a.menuItem img.uc_1 {
+    height: 42px;
+}
+
+body.desktop a.menuItem img.lc_1 {
+    height: 68px;
+}
+
+body.desktop a#menu_main img.uc_1 {
+    margin-left: 6px;
+}
+
+body.desktop a#menu_about img.uc_1 {
+    margin-left: 5px;
+}
+
+
+body.desktop a#menu_main img.lc_1 {
+    margin-left: 30px;
+}
+
+body.desktop a#menu_about img.lc_1 {
+    margin-top: 4px;
+}
+
+body.desktop a#menu_music img.lc_1 {
+    margin-left: 12px;
+}
+
+body.desktop a#menu_media img.lc_1 {
+    margin-left: 6px;
+}
+
+
+body.mobile div.menu {
+    width: 100%;
+    left: 0px;
+    height: 52px;
+    top: calc(100% - 52px);
+    display: flex;
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, .5);
+}
+
+body.mobile a.menuItem {
     flex: 1;
-    height: 48px;
+    height: 52px;
     padding-top: 12px;
     overflow: hidden;
     text-align: center;
@@ -208,7 +340,38 @@ body.mobile div.menuItem {
     transition: background-color 1s;
 }
 
+body.mobile a.menuItem img {
+    height: 32px;
+}
+
 div.menuItem:hover {
     background-color: rgba(255, 255, 255, .03);
     transition: background-color .3s;
+}
+
+/*
+body.desktop.poetry-of-streetlights div.menu {
+    background-color: rgba(0, 0, 0, .25);
+    box-shadow: 0px 0px 20px 10px rgba(0, 0, 0, .3);
+}
+*/
+
+body.desktop.poetry-of-streetlights a.menuItem img {
+    filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, .8));
+}
+
+
+/*********/
+/* AUDIO */
+/*********/
+
+
+div.audioHolder {
+    position: fixed;
+    display: hidden;
+    top: -10px;
+    left: -10px;
+    width: 0px;
+    height: 0px;
+    overflow: hidden;
 }

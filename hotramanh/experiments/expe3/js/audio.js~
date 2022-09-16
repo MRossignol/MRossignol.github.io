@@ -1,0 +1,8 @@
+
+window.addEventListener('DOMContentLoaded', () => {
+
+    document.getElementById('audio').addEventListener('play', () => {
+	console.log('play');
+    });
+    
+});
