@@ -8,30 +8,8 @@
     hd: null,
     album: null
   };
-
-  let translationElems = {
-    ld: {
-      x: null,
-      y: null
-    },
-    hd: {
-      x: null,
-      y: null
-    },
-  };
   
-  let currentTranslation = {
-    ld: {x: 0, y: 0},
-    hd: {x: 0, y: 0}
-  };
-
-  let currentTranslationEndTime = {
-    ld: {x: 0, y: 0},
-    hd: {x: 0, y: 0}
-  };
-
-  
-  const maxTranslate = 30;
+  const maxTranslate = 20;
 
   const bgNaturalWidth = 3480;
   const bgNaturalHeight = 2320;
@@ -55,6 +33,7 @@
     return mw || knownWidths[knownWidths.length-1];
   };
 
+  
   let loadingImages = 0;
   let loadingAlbumBg = false;
   
@@ -100,6 +79,7 @@
       loadImage('hd', requiredWidth);
     }
   };
+
   
   let adjustBackgroundSize = (w, h, section) => {
 
@@ -149,19 +129,73 @@
     
   };
 
-  let moveBackground = (res, axis, force) => () => {
-    if (!force && currentTranslationEndTime[res][axis] - Date.now() > 100) return;
-    let elem = translationElems[res][axis];
-    let sign = currentTranslation[res][axis] > 0 ? -1 : 1;
-    let size = Math.min(window.innerWidth, window.innerHeight);
-    if (size>500) size=500;
-    let trans = Math.round(sign * maxTranslate *(4 + 6*Math.random()))/10;
-    currentTranslation[res][axis] = trans;
-    let duration = Math.round(100 + 200*Math.random())/10;
-    currentTranslationEndTime[res][axis] = Date.now() + 1000*duration;
-    elem.style.transition = 'transform ease-in-out '+duration+'s';
-    elem.style.transform = 'translate'+axis.toUpperCase()+'('+trans+'px)';
+
+  let initMovData = () => {
+    let nbSteps = Math.round(200 + 300*Math.random());
+    let angle = 3.14159/nbSteps;
+    return { c: 1, s: 0, lastS: -.1, dc: Math.cos(angle), ds: Math.sin(angle), minVal: -5-(maxTranslate-5)*Math.random(), maxVal: 5+(maxTranslate-5)*Math.random()};
   };
+  
+  let movData = {
+    ld :{
+      x: initMovData(),
+      y: initMovData()
+    },
+    hd :{
+      x: initMovData(),
+      y: initMovData()
+    }
+  };
+
+  let active = false;
+  
+  let updateBackgroundPositions = () => {
+    if (!active) return;
+    requestAnimationFrame(() => {
+      ['ld', 'hd'].forEach((res) => {
+	let delta = {x:0, y:0};
+	['x', 'y'].forEach((axis) => {
+	  let md = movData[res][axis];
+	  let nextC = md.c*md.dc-md.s*md.ds;
+	  let nextS = md.c*md.ds+md.s*md.dc;
+	  if ((nextS-md.s)*(md.s-md.lastS) < 0) {
+	    let nbSteps = Math.round(200 + 300*Math.random());
+	    let angle = 3.14159/nbSteps;
+	    md.dc = Math.cos(angle);
+	    md.ds = Math.sin(angle);
+	    if (nextS > md.s) {
+	      md.maxVal = 5+(maxTranslate-5)*Math.random();
+	    } else {
+	      md.minVal = -5-(maxTranslate-5)*Math.random();
+	    }
+	    nextC = md.c*md.dc-md.s*md.ds;
+	    nextS = md.c*md.ds+md.s*md.dc;
+	  }
+	  md.c = nextC;
+	  md.lastS = md.s;
+	  md.s = nextS;
+	  let trans = Math.round(100*(md.minVal + .5*(1+nextS)*(md.maxVal-md.minVal)))/100;
+	  delta[axis] = trans;
+	});
+	backgrounds[res].style.transform = 'translate3d('+delta.x+'px, '+delta.y+'px, 0) scale('+(1+(delta.x+delta.y)/2000)+')';
+      });
+    });
+  };
+  
+  // let moveBackground = (res, axis, force) => () => {
+  //   if (!force && currentTranslationEndTime[res][axis] - Date.now() > 100) return;
+  //   let elem = translationElems[res][axis];
+  //   let sign = currentTranslation[res][axis] > 0 ? -1 : 1;
+  //   let size = Math.min(window.innerWidth, window.innerHeight);
+  //   if (size>500) size=500;
+  //   let trans = Math.round(sign * maxTranslate *(4 + 6*Math.random()))/10;
+  //   currentTranslation[res][axis] = trans;
+  //   let steps = Math.round(100 + 200*Math.random());
+  //   let duration = steps/10;
+  //   currentTranslationEndTime[res][axis] = Date.now() + 1000*duration;
+  //   elem.style.transition = 'transform ease-in-out '+duration+'s';
+  //   elem.style.transform = 'translate'+axis.toUpperCase()+'('+trans+'px)';
+  // };
 
   let created = false;
   
@@ -170,20 +204,15 @@
       backgrounds[res] = document.createElement('img');
       backgrounds[res].classList.add('background');
       backgrounds[res].id='background-'+res;
-      ['x', 'y'].forEach ( (axis) => {
-	translationElems[res][axis] = makeDiv('backgroundTranslator');
-	translationElems[res][axis].addEventListener('transitionend', moveBackground(res, axis));
-	setTimeout(moveBackground(res, axis), 2000);
-      });
-      translationElems[res].y.appendChild(backgrounds[res]);
-      translationElems[res].x.appendChild(translationElems[res].y);
-      document.body.appendChild(translationElems[res].x);
+      document.body.appendChild(backgrounds[res]);
     });
     backgrounds.album = makeDiv('albumBackground');
     document.body.appendChild(backgrounds.album);
     created = true;
+    setInterval(updateBackgroundPositions, 50);
   };
 
+  
   hta.navigation.onSectionChange ((section, oldSection) => {
     if (!created) {
       createBgElems();
@@ -191,12 +220,11 @@
     }
     adjustBackgroundSize(window.innerWidth, window.innerHeight, section);
     if (section=='poetry-of-streetlights') {
+      active = false;
       let ote = () => {
 	backgrounds.album.removeEventListener('transitionend', ote);
-      translationElems.ld.x.style.display = 'none';
-      translationElems.hd.x.style.display = 'none';
-      translationElems.ld.y.style.display = 'none';
-      translationElems.hd.y.style.display = 'none';
+	backgrounds.ld.style.display = 'none';
+	backgrounds.hd.style.display = 'none';
       };
       backgrounds.album.style.display = 'block';
       setTimeout(() => {
@@ -204,10 +232,9 @@
 	backgrounds.album.style.opacity = 1;
       });
     } else {
-      translationElems.ld.x.style.display = 'block';
-      translationElems.hd.x.style.display = 'block';
-      translationElems.ld.y.style.display = 'block';
-      translationElems.hd.y.style.display = 'block';
+      active = true;
+      backgrounds.ld.style.display = 'block';
+      backgrounds.hd.style.display = 'block';
       if (oldSection == 'poetry-of-streetlights') {
 	let ote = () => {
 	  backgrounds.album.removeEventListener('transitionend', ote);
@@ -215,14 +242,6 @@
 	};
 	backgrounds.album.addEventListener('transitionend', ote);
 	backgrounds.album.style.opacity = 0;
-      }
-      if (!oldSection || oldSection == 'poetry-of-streetlights') {
-	console.log('start anim');
-	['ld', 'hd'].forEach ( (res) => {
-	  ['x', 'y'].forEach ( (axis) => {
-	    setTimeout(moveBackground(res, axis, true), 1000);
-	  });
-	});
       }
     }
   });

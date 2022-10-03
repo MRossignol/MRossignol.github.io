@@ -2,6 +2,8 @@
 
   let hta = getHTA();
 
+  let initDone = false;
+  
   let orientation = null;
 
 
@@ -48,6 +50,7 @@
     if (orientation != oldOrientation) {
       orientationCallbacks.forEach( cb => cb(orientation) );
     }
+    initDone = true;
   }
 
 
@@ -70,7 +73,10 @@
   });
   
   hta.layout = {
-    orientation: () => orientation,
+    orientation: () => {
+      if (!initDone) detectOrientation();
+      return orientation;
+    }, 
     onResize: (callback) => registerResizeCallback(callback),
     endOnResize: (callback) => unregisterResizeCallback(callback),
     onOrientationChange: (callback) => registerOrientationChangeCallback(callback),

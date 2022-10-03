@@ -12,9 +12,10 @@
     return res;
   };
 
-  let makeContent = function(root) {
+  let makeContent = function(contentRoot) {
     let content = hta.contentData.music;
 
+    let root = document.createElement('div');
     root.appendChild(setElemHTML(makeDiv('pageTitle'), content.title));
     let a = sectionLink('poetry-of-streetlights');
     a.classList.add('album');
@@ -43,6 +44,7 @@
 	root.appendChild(a);
       });
     });
+    contentRoot.appendChild(root);
   };
   
   hta.navigation.registerSection({

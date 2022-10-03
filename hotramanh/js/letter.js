@@ -4,7 +4,11 @@
 
   let letterImg = new Image();
 
+  let mode = 'image';
+  
   let zoom = false;
+
+  let contentDiv = null;
   
   let imgPromise = new Promise((resolve, reject) => {
     letterImg.onload = resolve;
@@ -12,34 +16,76 @@
 
   function showLetter() {
     document.getElementById('letterWait').style.display = 'none';
-    document.getElementById('letter').style.display = 'block';
-    setTimeout(() => {
-      document.getElementById('letter').style.opacity = 1;
-    });
+    letterImg.style.opacity = 1;
   }
 
-  function toggleZoom() {
-    let letter = document.getElementById('letter');
-    if (zoom) {
-      let h = getComputedStyle(letter).height;
-      letter.style.height = h;
-      letter.style.width = 'auto';
-      setTimeout(() => {
-	letter.style.height = '100%';
-	document.body.classList.remove('wideContent');
-      });
+  function toggleType() {
+    if (mode == 'image') {
+      let showText = () => {
+	mode='text';
+	contentDiv.classList.add('text');
+	requestAnimationFrame(() => {
+	  let textDiv = document.getElementById('letterText');
+	  contentDiv.style.height = (textDiv.getBoundingClientRect().height+80)+'px';
+	});
+      };
+      if (zoom) {
+	toggleZoom();
+	setTimeout(showText);
+      } else {
+	showText();
+      }
     } else {
-      let w = getComputedStyle(letter).width;
-      letter.style.width = w;
-      letter.style.height = 'auto';
-      setTimeout(() => {
-	letter.style.width = '100%';
-	document.body.classList.add('wideContent');
-      });
+      mode = 'image';
+      contentDiv.classList.remove('text');
+    }
+  }
+  
+  function toggleZoom() {
+    if (mode != 'image') return;
+    if (zoom) {
+      document.body.classList.remove('wideContent');
+      if (hta.layout.orientation() == 'desktop')
+	document.getElementsByClassName('content')[0].style.height = 'auto';
+    } else {
+      document.body.classList.add('wideContent');
+      if (hta.layout.orientation() == 'desktop') {
+	setTimeout(() => {
+	  let contentHeight = Math.round(letterImg.getBoundingClientRect().height+40);
+	  document.getElementsByClassName('content')[0].style.height = contentHeight+'px';
+	}, 300);
+      }
     }
     zoom = !zoom;
   }
-  
+
+  function makeContent(root) {
+    contentDiv = root;
+    let buttonHolder = makeDiv('buttonHolder');
+    let zoomButton = makeDiv('zoomButton');
+    zoomButton.addEventListener('click', toggleZoom);
+    let toggleButton = makeDiv('toggleButton');
+    toggleButton.addEventListener('click', toggleType);
+    buttonHolder.appendChild(zoomButton);
+    buttonHolder.appendChild(toggleButton);
+    root.appendChild(buttonHolder);
+    let letterWait = makeDiv('letterWait');
+    letterWait.id = 'letterWait';
+    letterWait.innerHTML = 'One moment, please…';
+    root.appendChild(letterWait);
+    letterImg.id = 'letter';
+    letterImg.src = 'img/letter-black-sm-white.png';
+    root.appendChild(letterImg);
+    let letterText = makeDiv('letterText');
+    letterText.id = 'letterText';
+    hta.contentData.letter.paragraphs.forEach((pContent) => {
+      let p = document.createElement('p');
+      p.innerHTML = pContent;
+      letterText.appendChild(p);
+    });
+    root.appendChild(letterText);
+  }
+
   hta.navigation.registerSection({
 
     name: 'main',
@@ -50,13 +96,12 @@
       letterImg.src = 'img/letter-black-sm-white.png';
     },
 
-    getContent: () => new Promise((resolve, reject) => {
-      letterImg.src = 'img/letter-black-sm-white.png';
-      resolve('<p id="letterWait">One moment, please...</p><img id="letter" src="img/letter-black-sm-white.png"/>');
+    getContent: (root) => new Promise((resolve, reject) => {
+      makeContent(root);
+      resolve();
     }),
 
     layout: () => {
-      document.getElementById('letter').addEventListener('click', toggleZoom);
       if (letterImg.complete) {
 	showLetter();
       } else {

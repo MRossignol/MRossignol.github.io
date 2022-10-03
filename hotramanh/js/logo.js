@@ -3,6 +3,11 @@
   let hta = getHTA();
   
   function resizeLogo() {
+    let logo = document.getElementById('logo');
+    if (!logo) {
+      setTimeout(resizeLogo, 100);
+      return;
+    }
     let w = window.innerWidth;
     let h = window.innerHeight;
     let targetW = Math.min(w, 200);
@@ -22,7 +27,6 @@
     let height = Math.round(width / aspectRatio);
     let top = Math.round((h-height)/2);
     let left = Math.round((w-width)/2);
-    let logo = document.getElementById('logo');
     logo.style.width = width+'px';
     logo.style.height = height+'px';
     logo.style.top = top+'px';

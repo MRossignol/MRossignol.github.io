@@ -3,6 +3,21 @@
   let hta = getHTA();
   
   hta.contentData = {
+
+    letter: {
+      paragraphs: [
+	'Dear friends,',
+	'Welcome to this personal site on which I happily share with you my music, and my quest for the meaning of life through creativity. Thank you for visiting this little haven of mine.',
+	'I am certain, as human beings, you all have asked yourself this question: “What is my mission in life?” There will never be a definite answer to this. But I believe that if we keep our way in exploring ourselves and the world, we are already engaging in the pursuit of truth and meaning of life.',
+	'Sometimes you will feel like you have lost all hope in the dark, and nothing promises ahead. I have been in a similar place. But trust me, there will be things that keep you going, things that make your life worthwhile. We all need an endeavor that makes us feel truly alive. For me, it lies in music.',
+	'Some have asked me why I keep on making music without much recognition. I believe the greatest reward does not lie in recognition, but in the pure joy of creating. To fully live and die and make sacrifices for the things meaningful to you is already something to be celebrated.',
+	'This debut album, this website and my entire musical journey are an attempt to uphold my belief in the arts, particularly music. To me, it honors the most beautiful legacy of mankind. What rescues our souls from darkness and oblivion will always be the arts. One day we will become ashes, but music lives on.',
+	'Therefore, I am humbly sharing with you the fruits of my aspiration. You may not like it, you may dismiss it. Still, I wish to evoke some emotions in you, even in only a short moment. By doing so, I have fulfilled my quest contentedly.',
+	'Thank you for your generous support and unwavering companionship.',
+	'To music and the arts!',
+	'Tram Anh'
+      ]
+    },
     
     about: {
       title: 'About',

@@ -134,7 +134,7 @@
 	waitingToTransition = null;
       }
     }, () => {
-      sectionChangeCallbacks.forEach( cb => cb(currentSection.name, sectionName) );
+      sectionChangeCallbacks.forEach( cb => cb(currentSection ? currentSection.name : '', sectionName) );
       nextSection = null;
     });
   };

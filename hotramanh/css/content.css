@@ -29,32 +29,157 @@ div.content.main {
     overflow: hidden;
 }
 
-body.wideContent div.content.main {
+div#letterWait {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    opacity: 0.5;
+    top: 40%;
+}
+
+body.mobile.wideContent div.content.main {
     overflow: auto;
 }
 
+img#letter {
+    opacity: 0;
+    transition: all .2s;
+}
+
 body.desktop img#letter {
-    height: 100%;
+    height: auto;
+    width: calc(0.7067 * calc(100vh - 40px));
     margin: auto;
     background-color: rgba(0, 0, 0, .4);
-    display: none;
-    opacity: 0;
-    transition: opacity .2s;
+}
+
+div.content > div.buttonHolder {
+    position: relative;
+    height: 0px;
+    margin: auto;
+    padding: 0px !important;
+}
+
+body.desktop div.buttonHolder {
+    width: calc(0.7067 * calc(100vh - 40px));
+}
+
+body.mobile div.buttonHolder {
+    width: 100%;
+    margin-top: calc(calc(50vh - 70vw) - 26px);
+}
+
+body.mobile div.content.main.text div.buttonHolder {
+    margin-top: 16px;
+}
+
+body.mobile.wideContent div.buttonHolder {
+    width: 198vw;
+    margin: 0px;
+}
+
+body.desktop.wideContent div.buttonHolder {
+    width: 100%;
+}
+
+div.buttonHolder > div {
+    width: 48px;
+    height: 48px;
     cursor: pointer;
+    position: absolute;
+    top: 0px;
+    background-size: 32px;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.6;
+}
+
+body.wideContent div.buttonHolder > div {
+    top: 8px;
+}
+
+div.zoomButton {
+    right: 60px;
+    background-image: url(../img/icons/zoomIn.svg);
+}
+
+body.wideContent div.zoomButton {
+    background-image: url(../img/icons/zoomOut.svg);
+}
+
+div.toggleButton {
+    right: 4px;
+    background-image: url(../img/icons/imageToText.png);
+}
+
+body.mobile div.content.main.text div.toggleButton {
+    right: 16px;
 }
 
 body.wideContent img#letter {
-    transition: width .3s, height .3s;
+    width: 100%;
 }
 
+body.mobile div.content.main {
+    padding: 0px;
+}
+
+body.mobile img#letter {
+    background-color: rgba(0, 0, 0, .2);
+    width: 98vw;
+    height: 138.7vw;
+    margin-left: 1vw;
+    margin-top: 0px; /* calc(calc(50vh - 70vw) - 52px); */
+}
+
+body.mobile.wideContent img#letter {
+    width: 200vw;
+    height: 283vw;
+    margin: 0px;
+}
+
+div#letterText {
+    display: none;
+    text-align: left;
+    padding: 20px;
+}
+
+div.content.main.text div#letterText {
+    display: block;
+}
+
+div.content.main.text img#letter {
+    display: none;
+}
+
+div.content.main.text div.buttonHolder {
+    width: 100%;
+}
+
+div.content.main.text div.zoomButton {
+    display: none;
+}
+
+body.desktop div#letterText {
+    background-color: rgba(0, 0, 0, .4);
+}
+
+body.mobile div#letterText {
+    background-color: rgba(0, 0, 0, .2);
+    margin: 0px 16px 16px 16px;
+    padding: 10px;
+}
 
 /*********/
 /* MUSIC */
 /*********/
 
-div.content.music {
-    overflow: auto;
+body.desktop div.content.music > div {
     background-color: rgba(0, 0, 0, .4);
+}
+
+body.mobile div.content.music > div {
+    background-color: rgba(0, 0, 0, .2);
 }
 
 div.content.music a.album {
@@ -79,11 +204,25 @@ div.content.music a.release {
     height: 100px;
 }
 
+body.mobile div.content.music a.release {
+    display: block;
+    width: 100%;
+    position: relative;
+    padding-left: 124px;
+    margin-bottom: 20px;
+    height: 80px;
+}
+
 div.content.music img.releaseImage {
     position: absolute;
     top: 0px;
     left: 40px;
     width: 100px;
+}
+
+body.mobile div.content.music img.releaseImage {
+    left: 20px;
+    width: 80px;
 }
 
 div.content.music div.releaseTitle {
@@ -106,16 +245,22 @@ div.musicSectionTitle {
 /* MEDIA */
 /*********/
 
-div.content.media > div.thumbnailsArea {
+body.desktop div.thumbnailsArea {
     padding-left: 80px;
+}
+
+body.mobile div.thumbnailsArea {
+    padding-left: 0px;
 }
 
 div.galleryThumbnailHolder {
     float: left;
     margin: 10px;
     position: relative;
-    width: 300px;
-    height: 300px;
+}
+
+body.mobile div.galleryThumbnailHolder {
+    margin: 0px;
 }
 
 div.galleryThumbnailHolder > img {
@@ -145,7 +290,14 @@ img.carouselImage {
     position: fixed;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, .5);
     z-index: 1001;
-    transition: all .4s;
+}
+
+body.desktop img.carouselImage {
+    transition: all .4s ease-out;
+}
+
+body.mobile img.carouselImage {
+    transition: all .2s ease-out;
 }
 
 div.carouselControlOverlay {
@@ -162,19 +314,8 @@ div.carouselControlOverlay {
 /*********/
 
 
-div.content.about {
-    padding: 0px;
-}
-
-div.content.about > div {
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-}
-
 body.desktop div.content.about > div {
     background-color: rgba(0, 0, 0, .4);
-    padding-bottom: 40px;
 }
 
 body.desktop div.content.about p {
@@ -184,8 +325,11 @@ body.desktop div.content.about p {
 
 body.mobile div.content.about > div {
     background-color: rgba(0, 0, 0, .2);
-    padding: 0px 24px 40px 32px;
-    padding-bottom: 40px;
+}
+
+body.mobile div.content.about p {
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 /*********/
