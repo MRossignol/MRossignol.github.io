@@ -267,7 +267,7 @@ body.desktop div.menuFlex2 {
 body.desktop div.flexMenuHolder {
     position: relative;
     height: 100%;
-    flex-basis: 150px;
+    flex-basis: 170px;
     flex-shrink: 0;
     flex-grow: 0;
     pointer-events: auto;
@@ -398,4 +398,85 @@ div.audioHolder {
     width: 0px;
     height: 0px;
     overflow: hidden;
+}
+
+div.player {
+    position: absolute;
+    overflow: visible;
+    z-index: 4;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+    /* desktop */
+    top: 80px;
+    left: 0px;
+    width: 170px;
+}
+
+body.mobile div.player {
+    width: 100%;
+    left: 0px;
+    height: 36px;
+    top: calc(100% - 92px);
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, .5);    
+}
+
+div.player div.title {
+    position: absolute;
+    filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, .8));
+    /* desktop */
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+div.player > img {
+    position: absolute;
+    display: none;
+    filter: drop-shadow(0px 0px 7px rgba(0, 0, 100, .8));
+    /* desktop */
+    top: 32px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+div.player > img.play { left: 75px; }
+div.player > img.transition { left: 75px; }
+div.player > img.pause { left: 75px; }
+div.player > img.previous { left: 35px; }
+div.player > img.next { left: 115px; }
+
+body.mobile div.player div.title {
+    top: 8px;
+    left: 40px;
+    width: calc(100vw - 64px);
+    text-align: left;
+}
+
+body.mobile div.player > img {
+    top: 8px;
+}
+
+body.mobile div.player > img.play { left: 12px; }
+body.mobile div.player > img.transition { left: 12px; }
+body.mobile div.player > img.pause { left: 12px; }
+body.mobile div.player > img.previous { left: calc(100vw - 60px); }
+body.mobile div.player > img.next { left: calc(100vw - 28px); }
+
+body.playerVisible div.player {
+    visibility: visible;
+    opacity: 1;
+}
+
+body.mobile.playerVisible div.contentFrame {
+    height: calc(100% - 92px);
+}
+
+body.playerVisible div.menu {
+    box-shadow: none;
 }

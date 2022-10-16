@@ -7,9 +7,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <path
-      style="fill:none;stroke:#000000;stroke-width:7;stroke-linecap:round"
+      style="fill:none;stroke:#ffffff;stroke-width:7;stroke-linecap:round"
       d="M 9.5,6 V 25" />
   <path
-      style="fill:none;stroke:#000000;stroke-width:7;stroke-linecap:round"
+      style="fill:none;stroke:#ffffff;stroke-width:7;stroke-linecap:round"
       d="M 22.5,6 V 25" />
 </svg>

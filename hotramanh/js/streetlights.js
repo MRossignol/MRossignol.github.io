@@ -27,7 +27,7 @@
       let transImg = document.createElement('img');
       transImg.classList.add('trackStatus');
       transImg.classList.add('transition');
-      transImg.src = 'img/icons/transition.svg';
+      transImg.src = 'img/icons/transition_anim.svg';
       track.appendChild(transImg);
       container.appendChild(track);
     });

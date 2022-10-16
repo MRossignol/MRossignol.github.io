@@ -54,7 +54,7 @@
     
     getContent: () => new Promise((resolve, reject) => {
       imgPromise.then(() => {
-	resolve('<a class="sectionLink fullPageLink" href="main.html"><img id="logo" src="img/name.png"/></a>');
+	resolve('<a class="sectionLink" href="main.html"><img id="logo" src="img/name.png"/></a>');
       });
     }),
 
