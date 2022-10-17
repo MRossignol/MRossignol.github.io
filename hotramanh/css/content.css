@@ -61,11 +61,11 @@ body.desktop div.content > div.buttonHolder {
 body.mobile div.content > div.buttonHolder {
     width: 100%;
     padding: 0px;
-    margin-top: calc(calc(50vh - 70vw) - 26px);
+    margin-top: calc(calc(50% - 70vw) - 26px);
 }
 
 body.mobile.playerVisible div.content > div.buttonHolder {
-    margin-top: calc(calc(50vh - 70vw) - 59px);
+    margin-top: calc(calc(50% - 70vw) - 59px);
 }
 
 
