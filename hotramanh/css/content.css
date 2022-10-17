@@ -51,17 +51,23 @@ div.content > div.buttonHolder {
     position: relative;
     height: 0px;
     margin: auto;
-    padding: 0px !important;
 }
 
-body.desktop div.buttonHolder {
+body.desktop div.content > div.buttonHolder {
     width: calc(0.7067 * calc(100vh - 40px));
+    padding: 0px;
 }
 
-body.mobile div.buttonHolder {
+body.mobile div.content > div.buttonHolder {
     width: 100%;
+    padding: 0px;
     margin-top: calc(calc(50vh - 70vw) - 26px);
 }
+
+body.mobile.playerVisible div.content > div.buttonHolder {
+    margin-top: calc(calc(50vh - 70vw) - 59px);
+}
+
 
 body.mobile div.content.main.text div.buttonHolder {
     margin-top: 16px;
