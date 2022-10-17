@@ -21,6 +21,8 @@
   ];
 
   let playerWidget = null;
+
+  let preventSliderUpdate = false;
   
   let prepareWidget = () => {
     playerWidget = {};
@@ -32,16 +34,38 @@
 	pause: new Image(),
 	transition: new Image(),
 	previous: new Image(),
-	next: new Image()
+	next: new Image(),
+	position: document.createElement('input')
       };
+      let pw = playerWidget[orientation];
+      pw.position.type = 'range';
+      pw.position.value = 0;
+      pw.position.min = 0;
+      pw.position.max = 1;
+      pw.position.step = .001;
+      pw.position.addEventListener('input', (e) => {
+	preventSliderUpdate = true;
+      });
+      pw.position.addEventListener('change', (e) => {
+	if (nowPlaying) {
+	  let num = players.findIndex(p => p==nowPlaying);
+	  if (num >= 0) {
+	    let time = nowPlaying.duration*pw.position.value;
+	    broadcastTrackStatusChange(num, 'transition');
+	    if (nowPlaying.fastSeek) nowPlaying.fastSeek(time);
+	    else nowPlaying.currentTime = time;
+	  }
+	  preventSliderUpdate = false;
+	}
+      });
       ['play', 'pause', 'transition', 'previous', 'next'].forEach((button) => {
-	playerWidget[orientation][button].classList.add(button);
+	pw[button].classList.add(button);
 	let name = (button=='transition') ? 'transition_anim' : button;
-	playerWidget[orientation][button].src = 'img/icons/'+name+'_white.svg';
-	playerWidget[orientation][button].addEventListener('click', () => { playerWidgetClick(button); });
+	pw[button].src = 'img/icons/'+name+'_white.svg';
+	pw[button].addEventListener('click', () => { playerWidgetClick(button); });
       });
       Object.keys(playerWidget[orientation]).forEach((elem) => {
-	player.appendChild(playerWidget[orientation][elem]);
+	player.appendChild(pw[elem]);
       });
       if (orientation=='mobile') {
 	document.body.appendChild(player);
@@ -56,7 +80,7 @@
 
   let trackStatusListeners = [];
 
-  let updatePlayerState = (trackNum, status) => {
+  var updatePlayerState = (trackNum, status) => {
     ['desktop', 'mobile'].forEach((or) => {
       let pw = playerWidget[or];
       switch(status) {
@@ -87,12 +111,9 @@
     });			  
   };
   
-  let broadcastTrackStatusChange = (trackNum, status) => {
+  var broadcastTrackStatusChange = (trackNum, status) => {
     trackStatusListeners.forEach(cb => cb(trackNum, status));
-    console.log(trackNum, status);
-    //if (players[trackNum] == nowPlaying || players[trackNum] == nextPlaying) {
-      updatePlayerState(trackNum, status);
-    //}
+    updatePlayerState(trackNum, status);
   };
 
   var playerWidgetClick = (button) =>{
@@ -148,6 +169,14 @@
       fading[num] = false;
     }, t);
   };
+
+  var updatePlayerPosition = (event) => {
+    if (nowPlaying && !preventSliderUpdate) {
+      ['mobile', 'desktop'].forEach((or) => {
+	playerWidget[or].position.value = nowPlaying.currentTime / nowPlaying.duration;
+      });
+    }
+  };
   
   var playTrack = (num) => {
     if (!playerWidget)
@@ -177,11 +206,13 @@
 	nowPlaying = nextPlaying;
 	nextPlaying = null;
 	if (oldPlaying) {
+	  oldPlaying.removeEventListener('timeupdate', updatePlayerPosition);
 	  if (oldPlaying.paused)
 	    oldPlaying.load();
 	  else
 	    fadeOut(oldPlaying);
 	}
+	nowPlaying.addEventListener('timeupdate', updatePlayerPosition);
 	if (navigator.mediaSession) {
 	  navigator.mediaSession.metadata = new MediaMetadata( {
 	    title: hta.contentData.streetlights.tracks[num].title,
