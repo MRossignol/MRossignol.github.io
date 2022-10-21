@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTA-news</title>
+  </head>  
+  <link rel="stylesheet" href="css/news.css" />
+  <script language="javascript">
+    let documentHeight = 0;
+    reportDocumentHeight = () => {
+      let h = document.body.getBoundingClientRect().height;
+      if (h != documentHeight) {
+	documentHeight = h;
+	if (parent.getHTA) {
+	  parent.getHTA().sections.news.adjustIframeHeight(h);
+	}
+      }
+    }
+    document.oldWrite = document.write;
+    document.write = (html) => {
+      var el = document.createElement( 'html' );
+      el.innerHTML = html;
+      ['script', 'style', 'link', 'noscript', 'iframe', 'meta'].forEach((tag) => {
+	Array.from(el.getElementsByTagName(tag)).forEach((sc) => {
+	  sc.parentElement.removeChild(sc);
+	});
+      });
+      Array.from(el.getElementsByTagName('a')).forEach((link) => {
+	link.target='_blank';
+      });
+      let h = el.innerHTML.replace(/^.*<body>/, '').replace(/<\/body>.*$/, '');
+      document.oldWrite(h);
+      
+      [50, 100, 200, 400, 800, 1600].forEach( dt => setTimeout(reportDocumentHeight, dt) );
+    }
+  </script>
+  <body>
+    <script language="javascript" src="https://hotramanhmusic.tumblr.com/js"></script>
+  </body>
+</html>

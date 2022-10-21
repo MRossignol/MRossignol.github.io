@@ -1,0 +1,41 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-size: 18px;
+    font-family: Vollkorn, serif;
+    overflow: hidden;
+    color: white;
+}
+
+a {
+    color: white;
+    text-decoration: underline;
+}
+
+h1 {
+    text-align: left;
+    font-weight: normal;
+    font-size: 18px;
+}
+
+div.tumblr_title {
+    display: none;
+}
+
+div.tumblr_body {
+    margin-top: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #444;
+}
+
+ol {
+    list-style-type: none;
+    padding-left: 0px;
+}
+
+ol > li {
+    list-style-type: none;
+}

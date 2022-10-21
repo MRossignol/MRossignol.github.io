@@ -70,7 +70,6 @@
       if (orientation=='mobile') {
 	document.body.appendChild(player);
       } else {
-	console.log(player);
 	document.getElementsByClassName('flexMenuHolder')[0].appendChild(player);
       }
     });
@@ -110,10 +109,74 @@
       }
     });			  
   };
+
+  var sendPlayerAnalytics = (trackNum, status) => {
+    if (typeof(trackNum) != 'number') {
+      trackNum = players.findIndex(p => p==trackNum);
+      if (trackNum < 0) return;
+    }
+    if (!gtag) return;
+    let sendEvent = (type, data) => {
+      // console.log('EVENT '+type+'\n'+JSON.stringify(data, null, 2));
+      gtag('event', type, data);
+    };
+    switch(status) {
+    case 'clickPlay':
+      sendEvent('play_attempt', {
+	track_id: trackNum+1,
+	track_title: hta.contentData.streetlights.tracks[trackNum].title
+      });
+      break;
+    case 'playing':
+      sendEvent('play_start', {
+	track_id: trackNum+1,
+	track_title: hta.contentData.streetlights.tracks[trackNum].title
+      });
+      break;
+    case 'ended':
+      sendEvent('play_end', {
+	track_id: trackNum+1,
+	track_title: hta.contentData.streetlights.tracks[trackNum].title,
+	track_played_time: Math.round(players[trackNum].duration),
+	track_played_percent: 100,
+	track_played_complete: true
+      });
+      break;
+    case 'pause':
+      if (players[trackNum] != nowPlaying) {
+	let percent = Math.round(100*(players[trackNum].currentTime/players[trackNum].duration));
+	sendEvent('play_end', {
+	  track_id: trackNum+1,
+	  track_title: hta.contentData.streetlights.tracks[trackNum].title,
+	  track_played_time: Math.round(players[trackNum].currentTime),
+	  track_played_percent: percent,
+	  track_played_complete: percent >= 95
+	});
+      }
+      break;
+    case 'skip':
+      let percent = Math.round(100*(players[trackNum].currentTime/players[trackNum].duration));
+      sendEvent('play_end', {
+	track_id: trackNum+1,
+	track_title: hta.contentData.streetlights.tracks[trackNum].title,
+	track_played_time: Math.round(players[trackNum].currentTime),
+	track_played_percent: percent,
+	track_played_complete: percent >= 95
+      });
+      break;
+    }
+  };
+
+  var onPageUnload = () => {
+    if (nowPlaying && !nowPlaying.ended) {
+      sendPlayerAnalytics(nowPlaying, 'skip');
+    }
+  };
   
   var broadcastTrackStatusChange = (trackNum, status) => {
     trackStatusListeners.forEach(cb => cb(trackNum, status));
     updatePlayerState(trackNum, status);
+    sendPlayerAnalytics(trackNum, status);
   };
 
   var playerWidgetClick = (button) =>{
@@ -198,6 +261,7 @@
       }
       nextPlaying = null;
     } else {
+      sendPlayerAnalytics(num, 'clickPlay');
       broadcastTrackStatusChange(num, 'transition');
       nextPlaying.volume = 1;
       nextPlaying.load();
@@ -207,10 +271,12 @@
 	nextPlaying = null;
 	if (oldPlaying) {
 	  oldPlaying.removeEventListener('timeupdate', updatePlayerPosition);
-	  if (oldPlaying.paused)
+	  if (oldPlaying.paused) {
+	    sendPlayerAnalytics(oldPlaying, 'skip');
 	    oldPlaying.load();
-	  else
+	  } else {
 	    fadeOut(oldPlaying);
+	  }
 	}
 	nowPlaying.addEventListener('timeupdate', updatePlayerPosition);
 	if (navigator.mediaSession) {
@@ -230,7 +296,6 @@
   };
 
   var preparePlayer = () => {
-    console.log('prepare');
     if (preparing || ready) return;
     preparing = true;
 
@@ -245,11 +310,11 @@
 	  let src = document.createElement('source');
 	  src.src = 'audio/'+f+'/'+t.audio+'.'+f;
 	  elem.appendChild(src);
-	  elem.addEventListener('ended', moveToNext);
-	  ['ended', 'pause', 'playing'].forEach((eType) => {
-	    elem.addEventListener(eType, () => {
-	      broadcastTrackStatusChange(i, eType);
-	    });
+	});
+	elem.addEventListener('ended', moveToNext);
+	['ended', 'pause', 'playing'].forEach((eType) => {
+	  elem.addEventListener(eType, (e) => {
+	    broadcastTrackStatusChange(i, eType);
 	  });
 	});
 	holder.appendChild(elem);
@@ -282,7 +347,9 @@
 
     onTrackStatusChange: registerTrackStatusListener,
 
-    trackStatus: trackStatus
+    trackStatus: trackStatus,
+
+    onPageUnload: onPageUnload
     
   };
   

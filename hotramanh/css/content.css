@@ -60,6 +60,24 @@ body.desktop div.content > div.buttonHolder {
 
 body.mobile div.content > div.buttonHolder {
     width: 100%;
+    margin-top: calc(calc(50vh - 69vw) - 54px);
+}
+
+body.mobile.playerVisible div.buttonHolder {
+    margin-top: calc(calc(50vh - 69vw) - 72px);
+}
+
+body.mobile img#letter {
+    background-color: rgba(0, 0, 0, .2);
+    width: 98vw;
+    height: 138vw;
+    margin-top: 0px; /* calc(calc(50vh - 70vw) - 52px); */
+}
+
+body.mobile.wideContent img#letter {
+    width: 200vw;
+    height: 283vw;
+    margin: 0px;
     padding: 0px;
     margin-top: calc(calc(50% - 70vw) - 26px);
 }
@@ -122,20 +140,6 @@ body.wideContent img#letter {
 
 body.mobile div.content.main {
     padding: 0px;
-}
-
-body.mobile img#letter {
-    background-color: rgba(0, 0, 0, .2);
-    width: 98vw;
-    height: 138.7vw;
-    margin-left: 1vw;
-    margin-top: 0px; /* calc(calc(50vh - 70vw) - 52px); */
-}
-
-body.mobile.wideContent img#letter {
-    width: 200vw;
-    height: 283vw;
-    margin: 0px;
 }
 
 div#letterText {
@@ -371,6 +375,11 @@ div.albumTrack {
     margin: 0px auto 1px auto;
     cursor: pointer;
     position: relative;
+    white-space: nowrap;
+}
+
+mobile div.albumTrack {
+    width: 90%;
 }
 
 
@@ -422,4 +431,21 @@ div.creditsLine {
 
 span.creditName {
     font-weight: 600;
+}
+
+/********/
+/* NEWS */
+/********/
+
+body.desktop div.content.news > div {
+    background-color: rgba(0, 0, 0, .4);
+    padding-left: 30px;
+    padding-right: 30px;
+    min-height: 100%;
+}
+
+div.content.news iframe {
+    width: 100%;
+    height: auto;
+    border: none;
 }

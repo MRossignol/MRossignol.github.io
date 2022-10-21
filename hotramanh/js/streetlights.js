@@ -36,7 +36,7 @@
       if (c[0].indexOf('by') != -1) {
 	container.appendChild(setElemHTML(makeDiv('creditsLine'), c[0]+' <span class="creditName">'+c[1]+'</span>'));
       } else {
-	container.appendChild(setElemHTML(makeDiv('creditsLine'), c[0]+"</span>: "+c[1]+'</div>'));
+	container.appendChild(setElemHTML(makeDiv('creditsLine'), '<span class="creditName">'+c[0]+'</span>: '+c[1]+'</div>'));
       }
     });
   };

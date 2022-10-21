@@ -184,6 +184,19 @@
       if (currentSection && currentSection.onResize) currentSection.onResize(w,h);
       if (nextSection && nextSection.onResize) nextSection.onResize(w,h);
     });
+
+    window.addEventListener('beforeunload', () => {
+      let recursiveLook = (object, depth) => {
+	if (!depth) depth = 1;
+	if (depth > 5) return;
+	if (object.onPageUnload) {
+	  object.onPageUnload();
+	} else {
+	  Object.keys(object).forEach(k => recursiveLook(object[k], depth+1));
+	}
+      };
+      recursiveLook(hta);
+    });
     
   });
 
