@@ -22,13 +22,16 @@ h1 {
 }
 
 div.tumblr_title {
-    display: none;
+    margin-top: 24px;
+    font-weight: 600;
 }
 
 div.tumblr_body {
     margin-top: 24px;
     padding-bottom: 24px;
+    padding-left: 16px;
     border-bottom: 1px solid #444;
+    font-size: 16px;
 }
 
 ol {

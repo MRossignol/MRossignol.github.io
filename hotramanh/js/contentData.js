@@ -4,7 +4,12 @@
   
   hta.contentData = {
 
+    main: {
+      windowTitle: 'Intro'
+    },
+    
     letter: {
+      windowTitle: 'Intro',
       paragraphs: [
 	'Dear friends,',
 	'Welcome to this personal site on which I happily share with you my music, and my quest for the meaning of life through creativity. Thank you for visiting this little haven of mine.',
@@ -20,6 +25,7 @@
     },
     
     about: {
+      windowTitle: 'About',
       title: 'About',
       paragraphs: [
 	'Ho Tram Anh is an independent musician/songwriter based in Hanoi with various projects under her belt. Tram Anh’s compositions are trademarked by key-shifting melodies and spatial, atmospheric production with an influence from ambient and classical music as her primary musical instrument is the piano.',
@@ -30,6 +36,7 @@
     },
 
     music: {
+      windowTitle: 'Music',
       title: 'Music',
       albumOutImage: 'img/covers/streetlights_alt_cover.jpg',
       albumOutText: 'Ho Tram Anh\'s first solo album, <i>The Poetry of Streetlights</i>, is out!',
@@ -57,6 +64,7 @@
     },
     
     streetlights: {
+      windowTitle: 'The Poetry of Streetlights',
       title: 'The Poetry Of Streetlights',
       tracks: [
 	{title: 'Haze', audio:'01_Haze'},
@@ -71,6 +79,7 @@
 	{title: 'Ocean Waves', audio:'10_Ocean_Waves'},
 	{title: 'Coda (Lawrence\'s Lullaby)', audio:'11_Coda_(Lawrence_s_Lullaby)'}
       ],
+
       credits: [
 	['Ho Tram Anh', 'producing, songwriting, arrangement, piano, keyboards, synthesizers, electronic drums, bass (track 1, 3, 7), vocals'],
 	['Đờ Tùng', 'co-producing, engineering, mixing, synthesizers, guitars (track 9, 10), sound effects'],
@@ -86,7 +95,20 @@
 	['Website by', 'Mathias Rossignol'],
 	['CD production by', 'LP Club']
       ]
+    },
+    
+    'poetry-of-streetlights': {
+      windowTitle: 'The Poetry of Streetlights',
+    },
+    
+    news: {
+      windowTitle: 'News'
+    },
+
+    media: {
+      windowTitle: 'Media'
     }
+    
   };
 
 })();

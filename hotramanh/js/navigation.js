@@ -57,6 +57,13 @@
 	document.body.classList.remove(currentContent.section.name);
       }
       document.body.classList.add(section.name);
+
+      console.log(section.name);
+      if (hta.contentData[section.name] && hta.contentData[section.name].windowTitle) {
+	document.title = hta.contentData[section.name].windowTitle + '  |  Ho Tram Anh';
+      } else {
+	document.title = 'Ho Tram Anh';
+      }
       
       section.getContent(elem).then((text) => {
 	
