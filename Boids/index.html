@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Boids</title>
+    <script src="./boids-audio.js"></script>
+    <script src="./boids.js"></script>
+    <style type="text/css">
+      body {
+          margin: 0px;
+	  padding: 0px;
+          background: #282c34;
+          overflow: hidden;
+      }
+      canvas {
+	  position: absolute;
+	  top: 0px;
+	  left: 0px;
+      }
+      div {
+	  position: absolute;
+	  top: 30%;
+	  left: 0px;
+	  text-align: center;
+	  width: 100%;
+	  color: white;
+	  z-index: -1;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      Click anywhere to start.
+    </div>
+    <canvas id="boids" width="150" height="150"></canvas>
+  </body>
+</html>
