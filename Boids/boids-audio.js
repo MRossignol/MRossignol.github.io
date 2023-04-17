@@ -10,7 +10,7 @@
     [-2, 2, 5]  // G major
   ];
 
-  let baseF = 55;
+  let baseF = 110;
   let baseGain = 0;
   let maxSpeed = 10;
   let width = 0;
