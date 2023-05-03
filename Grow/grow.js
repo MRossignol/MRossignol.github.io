@@ -7,6 +7,8 @@
   let minRadius =10, maxRadius = 20;
 
   const density = window.devicePixelRatio || 1;
+  minRadius *= density;
+  maxRadius *= density;
   
   let canvas, context;
   
