@@ -2,8 +2,11 @@
 
   const drawStepOpacity = .05;
   const nbDrawSteps = 100;
+  const drawStepsStep = 5;
   const dropPeriod = 1;
   let minRadius =10, maxRadius = 20;
+
+  const density = window.devicePixelRatio || 1;
   
   let canvas, context;
   
@@ -33,17 +36,28 @@
 
   let profile = [];
 
+  let maxY = 0;
+
   let drawSpot = (spotData) => {
+    if (spotData.center[1] + spotData.radius > canvas.height) return false;
+    if (spotData.center[1] > maxY) {
+      maxY = spotData.center[1];
+      if (maxY > canvas.height/4) {
+	let style = `linear-gradient(to bottom, #000, #468 ${Math.round(130*(maxY-canvas.height/4)/canvas.height)}%, #468)`;
+	document.body.style.background = style;
+      }
+    }
     // context.fillStyle = '#00f';
     // context.fillRect(spotData.center[0]-spotData.radius, canvas.height-100-(spotData.center[1]-spotData.radius), 2*spotData.radius, -2*spotData.radius);
     let scale = spotData.radius / spotData.spotSource.radius;
     // context.translate(spotData.center[0]+spotData.spotSource.center[0], canvas.height-spotData.center[1]-spotData.spotSource.center[1]);
-    context.translate(spotData.center[0], canvas.height-spotData.center[1]);
+    context.translate(spotData.center[0], /* canvas.height- */ spotData.center[1]);
     context.scale(scale, scale);
     context.rotate(spotData.angle);
     context.translate(-spotData.spotSource.center[0], -spotData.spotSource.center[1]);
     context.globalAlpha =  (spotData.step == nbDrawSteps) ? 1 : drawStepOpacity;
-    context.drawImage(spotData.spotSource.image, 0, 0);
+    if (spotData.step == nbDrawSteps || spotData.step % drawStepsStep == 0)
+      context.drawImage(spotData.spotSource.image, 0, 0);
     context.resetTransform();
     spotData.step++;
     return spotData.step <= nbDrawSteps;
@@ -55,16 +69,22 @@
     if (stepNum % dropPeriod == 0) {
       let radius = minRadius+(maxRadius-minRadius)*Math.random();
       let x = canvas.width*Math.random();
-      let y = 0;
+      let y = 0, c = [0, 0];
       for (let i=Math.max(Math.floor(x-radius), 0), max=Math.min(Math.ceil(x+radius), canvas.width-1); i<max; i++) {
-	if (profile[i] > y) y = profile[i];
+	if (profile[i].y >= y) {
+	  y = profile[i].y;
+	  c = profile[i].c;
+	}
       }
-      for (let i=Math.max(Math.floor(x-.7*radius), 0), max=Math.min(Math.ceil(x+.7*radius), canvas.width-1); i<max; i++) {
-	profile[i] = y+.7*radius;
+      x += (c[0]-x)/2;
+      y += (c[1]-y)/2;
+      for (let i=Math.max(Math.ceil(x-radius), 0), max=Math.min(Math.floor(x+radius), canvas.width-1); i<max; i++) {
+	let topY = y + Math.sqrt(radius*radius - (x-i)*(x-i));
+	if (topY > profile[i].y) profile[i] = {y:topY, c:[x,y]};
       }
       drawnSpots.push({
 	step: 0,
-	center: [x, y % canvas.height],
+	center: [x, y /* % canvas.height */],
 	radius: radius,
 	angle: 2*Math.PI*Math.random(),
 	spotSource: spots[Math.floor(spots.length*Math.random())]
@@ -76,25 +96,36 @@
     }
     drawnSpots = newDrawnSpots;
     stepNum++;
-    requestAnimationFrame(step);
+    if (drawnSpots.length) {
+      requestAnimationFrame(step);
+    }
   };
   
   window.addEventListener('DOMContentLoaded', () => {
     canvas = document.createElement('canvas');
-    canvas.style.width = window.innerWidth+'px';
-    canvas.width = window.innerWidth;
-    canvas.style.height = window.innerHeight+'px';
-    canvas.height = window.innerHeight;
+    canvas.style.width = '100vw';
+    canvas.width = density*window.innerWidth;
+    canvas.style.height = '100vh';
+    canvas.height = density*window.innerHeight;
     canvas.style.position = 'absolute';
     canvas.style.top = '0px';
     canvas.style.left = '0px';
     context = canvas.getContext('2d');
-    for (let i=0; i<window.innerWidth; i++) {
-      profile[i] = 0;
+    for (let i=0; i<canvas.width; i++) {
+      profile[i] = {y: 0, c: [i, 0]};
     }
-    context.fillStyle = '#468';
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    document.body.style.height = '100vh';
+    document.body.style.background = '#468';
+    setTimeout(() => { document.body.style.transition = 'background 1s'; });
     document.body.appendChild(canvas);
+    let textDiv = document.createElement('div');
+    textDiv.style['z-index'] = 5;
+    textDiv.style.color = '#468';
+    textDiv.style.position = 'absolute';
+    textDiv.style.top = '20%';
+    textDiv.style.left = '25%';
+    textDiv.innerHTML = '<h1>Some text</h1><h3>Have some text go here</h3><h3>On several lines</h3><h3>Like this</h3><h3>It would work well for poetry I suppose</h3><h3>Or anything where we want to control the reading speed</h3><To sync with sound for example</h3>';
+    document.body.appendChild(textDiv);
     step();
   });
   
