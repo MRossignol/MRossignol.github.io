@@ -26,12 +26,6 @@
     {name: '13.png', dimensions: [389, 442], center: [151, 203], radius: 82}
   ];
   
-  for (let s of spots) {
-    s.image = new Image();
-    s.image.src = `spots/${s.name}`;
-  }
-  console.log(spots);
-
   let drawnSpots = [];
 
   let profile = [];
@@ -126,7 +120,20 @@
     textDiv.style.left = '25%';
     textDiv.innerHTML = '<h1>Some text</h1><h3>Have some text go here</h3><h3>On several lines</h3><h3>Like this</h3><h3>It would work well for poetry I suppose</h3><h3>Or anything where we want to control the reading speed</h3><To sync with sound for example</h3>';
     document.body.appendChild(textDiv);
-    step();
+    let nbLoaded = 0;
+    let stepStarted = false;
+    for (let s of spots) {
+      s.image = new Image();
+      s.onload = () => {
+	nbLoaded++;
+	if (nbLoaded == spots.length && ! stepStarted) {
+	  stepStarted = true;
+	  step();
+	}
+      };
+      s.image.src = `spots/${s.name}`;
+    }
+    console.log(spots);
   });
   
 })();
