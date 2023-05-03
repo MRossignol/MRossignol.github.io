@@ -124,9 +124,9 @@
     let stepStarted = false;
     for (let s of spots) {
       s.image = new Image();
-      s.onload = () => {
+      s.image.onload = () => {
 	nbLoaded++;
-	if (nbLoaded == spots.length && ! stepStarted) {
+	if (nbLoaded == spots.length && !stepStarted) {
 	  stepStarted = true;
 	  step();
 	}
