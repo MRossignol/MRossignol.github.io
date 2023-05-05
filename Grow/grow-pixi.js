@@ -1,6 +1,6 @@
 (function () {
 
-  let app;
+  let app, stableSpotsTexture, stableSpotsSprite, stableSpotsScene, stableSpotsRenderer;
   
   const spotGrowTime = 1000;
   const spotGrowStartScale = .4;
@@ -8,15 +8,10 @@
   const spotGrowStartAlpha = 0;
   const spotGrowEndAlpha = .6;
   
-  const drawStepOpacity = .05;
-  const nbDrawSteps = 100;
-  const drawStepsStep = 5;
-  const dropPeriod = 1;
+  const dropPeriod = 30;
   let minRadius =15, maxRadius = 25;
 
   const density = window.devicePixelRatio || 1;
-  minRadius *= Math.sqrt(density);
-  maxRadius *= Math.sqrt(density);
   
   let canvas, context;
   
@@ -39,16 +34,38 @@
   for (let s of spots) {
     s.texture = PIXI.Texture.from(`spots/${s.name}`);
   }
-  
+
+  let stableSprites = [];
   let growingSprites = [];
+  let doneGrowingSprites = [];
 
   let profile = [];
 
   let stepNum = 0;
+  let startTime = 0;
+  let createdSpots = 0;
+
+  let transferDoneGrowingSprites = () => {
+    console.log(stableSprites.length);
+    for (let s of doneGrowingSprites) {
+      stableSpotsScene.addChild(s.sprite);
+      app.stage.removeChild(s.sprite);
+      stableSprites.push(s);
+    }
+    doneGrowingSprites = [];
+    app.renderer.render(stableSpotsScene, {renderTexture: stableSpotsTexture});
+    app.stage.removeChild(stableSpotsSprite);
+    stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture);
+    app.stage.addChild(stableSpotsSprite);
+  };
+
+  let done = false;
   
   let step = () => {
+    if (done) return;
     let now = Date.now();
-    if (stepNum % dropPeriod == 0) {
+    let neededSpots = Math.round((now-startTime)/dropPeriod);
+    for (; createdSpots < neededSpots; createdSpots++) {
       let radius = minRadius+(maxRadius-minRadius)*Math.random();
       let x = canvas.width*Math.random();
       let y = 0, o = null;
@@ -58,9 +75,9 @@
 	  o = profile[i].object;
 	}
       }
-      if (true /* !o.growing */ ) {
-	x += (o.center[0]-x)/5;
-	y += (o.center[1]-y)/5;
+      if (y < window.innerHeight+100 /* !o.growing */ ) {
+	x += (o.center[0]-x)/3;
+	y += (o.center[1]-y)/3;
 	let spot = spots[Math.floor(spots.length*Math.random())];
 	let newObj = {
 	  startTime: now,
@@ -74,7 +91,7 @@
 	newObj.sprite.anchor.set(spot.center[0]/spot.dimensions[0], spot.center[1]/spot.dimensions[1]);
 	newObj.sprite.rotation = newObj.angle;
 	newObj.sprite.x = x;
-	newObj.sprite.y = y % canvas.height;
+	newObj.sprite.y = y;
 	growingSprites.push(newObj);
 	app.stage.addChild(newObj.sprite);
 	for (let i=Math.max(Math.ceil(x-radius), 0), max=Math.min(Math.floor(x+radius), canvas.width-1); i<max; i++) {
@@ -89,6 +106,7 @@
 	s.growing = false;
 	s.sprite.scale.set(s.scale * spotGrowEndScale);
 	s.sprite.alpha = spotGrowEndAlpha;
+	doneGrowingSprites.push(s);
       } else {
 	let ratio = (now-s.startTime)/spotGrowTime;
 	let smoothRatio = .5*(1+Math.cos(Math.PI*(1-ratio)));
@@ -97,12 +115,21 @@
 	newGrowingSprites.push(s);
       }
     }
+    if (doneGrowingSprites.length > 10) {
+      transferDoneGrowingSprites();
+    }
     growingSprites = newGrowingSprites;
+    if (growingSprites.length == 0) {
+      done = true;
+      transferDoneGrowingSprites();
+      setTimeout(() => app.stop());
+    }
     stepNum++;
   };
   
   window.addEventListener('DOMContentLoaded', () => {
-    app = new PIXI.Application({ background: '#468', resizeTo: document.body });
+    startTime = Date.now();
+    app = new PIXI.Application({ background: '#468', antialias: false, width: window.innerWidth, height: window.innerHeight });
     document.body.appendChild(app.view);
     canvas = app.view;
     canvas.style.position = 'absolute';
@@ -111,6 +138,11 @@
     for (let i=0; i<canvas.width; i++) {
       profile[i] = {y: 0, object: {growing: false, center: [i, 0]}};
     }
+    stableSpotsScene = new PIXI.Container();
+    stableSpotsTexture = PIXI.RenderTexture.create({width: window.innerWidth, height: window.innerHeight});
+    stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture);
+    stableSpotsRenderer = PIXI.autoDetectRenderer();
+    app.stage.addChild(stableSpotsSprite);
     app.ticker.add(step);
     let textDiv = document.createElement('div');
     textDiv.style['z-index'] = 5;
