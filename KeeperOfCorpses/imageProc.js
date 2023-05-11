@@ -4,7 +4,7 @@
 
   let dropPeriod = 10;
   
-  let minRadius = 10, maxRadius = 20;
+  let minRadius = 40, maxRadius = 80;
   
   let spots = [
     {name: '01.png', dimensions: [455, 491], center: [238, 233], radius: 110},
@@ -49,9 +49,9 @@
 	for (let x = 0; x < w; x++) {
 	  let pos = 4*x;
 	  for (let y = 0; y < h; y++) {
-	    let r = imgData[pos]/255.;
-	    let g = imgData[pos+1]/255.;
-	    let b = imgData[pos+2]/255.;
+	    let r = imgData.data[pos]/255.;
+	    let g = imgData.data[pos+1]/255.;
+	    let b = imgData.data[pos+2]/255.;
 	    let val = Math.sqrt(r*r+g*g+b*b);
 	    brightness[x][y] = Math.sqrt(r*r+g*g+b*b);
 	    if (val > max) max = val;
@@ -89,7 +89,7 @@
     for (let x = 0; x < w; x++) {
       let pos = 4*x;
       for (let y = 0; y < h; y++) {
-	alpha[x][y] = imgData[pos+3]/255.;
+	alpha[x][y] = imgData.data[pos+3]/255.;
 	pos += 4*w;
       }
     }
@@ -121,13 +121,14 @@
     ocv.width = s;
     ocv.height = s;
     let ctx = ocv.getContext('2d');
-    ctx.translate(spot.center[0], spot.center[1]);
     ctx.scale(scale, scale);
+    ctx.translate(spot.center[0], spot.center[1]);
     ctx.rotate(angle);
+    ctx.translate(-spot.center[0], -spot.center[1]);
     ctx.drawImage(spot.image, 0, 0);
     let imgData = ctx.getImageData(0, 0, s, s);
     let alpha = getImageDataAlpha(imgData);
-    let threshold = .05;
+    let threshold = .1;
     let minX = Math.floor(s/2), minY = Math.floor(s/2), maxX = minX+1, maxY = minY+1;
     
     for (let x=0; x<minX; x++) {
@@ -194,7 +195,7 @@
 	}
       }
     }
-
+    console.log(minX, maxX, minY, maxY);
     let res = [];
     for (let x=minX; x<=maxX; x++) {
       res.push(alpha[x].slice(minY, maxY+1));
@@ -207,9 +208,9 @@
 
   let squareDifferenceImprovement =  (currentState, left, top, w, h, spot, alpha) => {
     let squareSum = 0;
-    for (let sx=0, x=Math.floor(left); sx<w; sx++, x++) {
-      for (let sy=0, y=Math.floor(top); sy<h; sy++, y++) {
-	let v = (1-alpha)*currentState[x][y]+alpha*spot[sx][sy];
+    for (let sx=0, x=left; sx<w; sx++, x++) {
+      for (let sy=0, y=top; sy<h; sy++, y++) {
+	let v = (1-alpha)*currentState[x][y]+alpha*(1-spot[sx][sy]);
 	let d1 = reference[x][y]-currentState[x][y];
 	let d2 = reference[x][y]-v;
 	squareSum += d1*d1 - d2*d2;
@@ -228,9 +229,11 @@
     let currentState = getImageDataAlpha(currentImgData);
     let best = 0, bestPos = [0, 0];
     for (let i=0; i<20; i++) {
-      let pos = [(canvas.width-w)*Math.random(), (canvas.height-h)*Math.random()];
+      let pos = [
+	Math.floor((canvas.width-w)*Math.random()),
+	Math.floor((canvas.height-h)*Math.random())
+      ];
       let d = squareDifferenceImprovement(currentState, pos[0], pos[1], w, h, shape, alpha);
-      console.log(d);
       if (d > best) {
 	best = d;
 	bestPos = pos;
@@ -239,8 +242,11 @@
     if (best > 0) {
       for (let sx=0, x=bestPos[0]; sx<w; sx++, x++) {
 	for (let sy=0, y=bestPos[1]; sy<h; sy++, y++) {
-	  let v = (1-alpha)*currentState[x][y]+alpha*spot[sx][sy];
-	  currentImgData[4*(y*canvas.width+x)+3] = Math.floor(255*v);
+	  let v = (1-alpha)*currentState[x][y]+alpha*(1-shape[sx][sy]);
+	  v = Math.floor(255*v);
+	  currentImgData.data[4*(y*canvas.width+x)+0] = v;
+	  currentImgData.data[4*(y*canvas.width+x)+1] = v;
+	  currentImgData.data[4*(y*canvas.width+x)+2] = v;
 	}
       }
     }
@@ -252,8 +258,9 @@
   
   let step = () => {
     if (stepNum % dropPeriod == 0)
-      addSpot();
-    requestAnimationFrame(step);
+      addSpot(.1);
+    stepNum++;
+    // requestAnimationFrame(step);
   };
   
   window.addEventListener('DOMContentLoaded', () => {
