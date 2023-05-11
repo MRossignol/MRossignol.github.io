@@ -2,9 +2,9 @@
 
   let canvas, rawContext;
 
-  let dropPeriod = 10;
+  let dropPeriod = 1;
   
-  let minRadius = 40, maxRadius = 80;
+  let minRadius = 5, maxRadius = 80;
   
   let spots = [
     {name: '01.png', dimensions: [455, 491], center: [238, 233], radius: 110},
@@ -128,7 +128,7 @@
     ctx.drawImage(spot.image, 0, 0);
     let imgData = ctx.getImageData(0, 0, s, s);
     let alpha = getImageDataAlpha(imgData);
-    let threshold = .1;
+    let threshold = .02;
     let minX = Math.floor(s/2), minY = Math.floor(s/2), maxX = minX+1, maxY = minY+1;
     
     for (let x=0; x<minX; x++) {
@@ -210,7 +210,7 @@
     let squareSum = 0;
     for (let sx=0, x=left; sx<w; sx++, x++) {
       for (let sy=0, y=top; sy<h; sy++, y++) {
-	let v = (1-alpha)*currentState[x][y]+alpha*(1-spot[sx][sy]);
+	let v = (1-alpha*spot[sx][sy])*currentState[x][y];
 	let d1 = reference[x][y]-currentState[x][y];
 	let d2 = reference[x][y]-v;
 	squareSum += d1*d1 - d2*d2;
@@ -228,7 +228,7 @@
     let h = shape[0].length;
     let currentState = getImageDataAlpha(currentImgData);
     let best = 0, bestPos = [0, 0];
-    for (let i=0; i<20; i++) {
+    for (let i=0; i<100; i++) {
       let pos = [
 	Math.floor((canvas.width-w)*Math.random()),
 	Math.floor((canvas.height-h)*Math.random())
@@ -242,11 +242,12 @@
     if (best > 0) {
       for (let sx=0, x=bestPos[0]; sx<w; sx++, x++) {
 	for (let sy=0, y=bestPos[1]; sy<h; sy++, y++) {
-	  let v = (1-alpha)*currentState[x][y]+alpha*(1-shape[sx][sy]);
+	  let v = (1-alpha*shape[sx][sy])*currentState[x][y];
 	  v = Math.floor(255*v);
 	  currentImgData.data[4*(y*canvas.width+x)+0] = v;
 	  currentImgData.data[4*(y*canvas.width+x)+1] = v;
 	  currentImgData.data[4*(y*canvas.width+x)+2] = v;
+	  currentImgData.data[4*(y*canvas.width+x)+3] = v;
 	}
       }
     }
@@ -258,9 +259,9 @@
   
   let step = () => {
     if (stepNum % dropPeriod == 0)
-      addSpot(.1);
+      addSpot(.2);
     stepNum++;
-    // requestAnimationFrame(step);
+    requestAnimationFrame(step);
   };
   
   window.addEventListener('DOMContentLoaded', () => {
@@ -290,7 +291,7 @@
       document.body.style.height = '100vh';
       document.body.style.background = '#321';
       document.body.appendChild(canvas);
-      getImageBrightness('female.jpg', {width: w, height: h}).then((brightness) => {
+      getImageBrightness('female.jpg', {width: w, height: h, normalize: true}).then((brightness) => {
 	reference = brightness;
 	let nbLoaded = 0;
 	let stepStarted = false;
