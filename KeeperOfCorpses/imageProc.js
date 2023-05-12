@@ -2,11 +2,14 @@
 
   let canvas, rawContext;
 
-  let dropPeriod = 1;
-  
-  let minRadius = 5, maxRadius = 80;
+  let dropPeriod = 2;
+  let dropBatch = 2;
+  let portraitPeriod = 1200;
 
-  let focusAreaWeight = 2;
+  let margin = 20;
+  let minRadius = 5, maxRadius = 60;
+
+  let focusAreaWeight = 20;
   
   let currentImgData;
   let reference;
@@ -32,8 +35,10 @@
   ];
 
   let portraits = [
-    {name: 'female1.jpg', focus: {cx: 482/1024, cy: 590/1024, rx: 460/1024, ry: 560/1024}},
-    {name: 'female2.jpg', focus: {cx: 510/1024, cy: 590/1024, rx: 500/1024, ry: 500/1024}},
+    {name: 'female1.jpg', focus: {cx: 482/1024, cy: 590/1024, rx: 460/2048, ry: 560/2048}},
+    {name: 'female2.jpg', focus: {cx: 510/1024, cy: 590/1024, rx: 500/2048, ry: 500/2048}},
+    {name: 'female3.jpg', focus: {cx: 516/1024, cy: 600/1024, rx: 495/2048, ry: 500/2048}},
+    {name: 'female4.jpg', focus: {cx: 500/1024, cy: 620/1024, rx: 486/2048, ry: 545/2048}},
   ];
   
   
@@ -47,6 +52,7 @@
     return new Promise( (resolve, reject) => {
       let img = new Image();
       img.onload = () => {
+	console.log('Loaded '+url);
 	let w = img.width, h = img.height;
 	if (options && options.width) w = Math.round(options.width);
 	if (options && options.height) h = Math.round(options.height);
@@ -107,8 +113,16 @@
   let nextPortrait = () => new Promise((resolve, reject) => {
     if (portrait < portraits.length) {
       let p = portraits[portrait];
-      getImageBrightness(`portraits/${p.name}`, {maximize: true, normalize: true}).then((brightness) => {
+      let options = {normalize: true};
+      if (canvas) {
+	options.width = canvas.width;
+	options.height = canvas.height;
+      } else {
+	options.maximize = true;
+      }
+      getImageBrightness(`portraits/${p.name}`, options).then((brightness) => {
 	reference = brightness;
+	console.log(reference);
 	let w = brightness.length;
 	let h = brightness[0].length;
 	let cx = w*p.focus.cx;
@@ -123,15 +137,17 @@
 	  if (dist > maxDist) maxDist = dist;
 	}
 	maxDist = Math.sqrt(maxDist);
+	// console.log(w, h, cx, cy, hScale, vScale, maxDist);
 	focusFactor = (x,y) => {
 	  let dx = hScale*(x-cx);
-	  let dy = vScale*(x-cy);
-	  let d = Math.sqrt(dx*dx+dy*dy)/maxDist;
-	  return d < 1 ? focusFactor : focusFactor*(2-d);
+	  let dy = vScale*(y-cy);
+	  let d = Math.sqrt(dx*dx+dy*dy);
+	  return d < 1 ? focusAreaWeight : 1+(focusAreaWeight-1)*(1-(d-1)/(maxDist-1));
 	};
 	resolve();
       });
     } else {
+      console.log('white');
       for (let c of reference) c.fill(1);
       resolve();
     }
@@ -260,23 +276,36 @@
     return res;
   };
 
-  let squareDifferenceImprovement =  (currentState, left, top, w, h, spot, alpha) => {
+  let squareDifferenceImprovement =  (currentState, left, top, w, h, spot, alpha, white) => {
     let squareSum = 0;
-    for (let sx=0, x=left; sx<w; sx++, x++) {
-      for (let sy=0, y=top; sy<h; sy++, y++) {
-	let v = (1-alpha*spot[sx][sy])*currentState[x][y];
-	let d1 = reference[x][y]-currentState[x][y];
-	let d2 = reference[x][y]-v;
-	squareSum += d1*d1 - d2*d2;
+    if (white) {
+      for (let sx=0, x=left; sx<w; sx++, x++) {
+	for (let sy=0, y=top; sy<h; sy++, y++) {
+	  let v = currentState[x][y] + alpha*spot[sx][sy]*(1-currentState[x][y]);
+	  let d1 = reference[x][y]-currentState[x][y];
+	  let d2 = reference[x][y]-v;
+	  squareSum += d1*d1 - d2*d2;
+	}
+      }
+    } else {
+      for (let sx=0, x=left; sx<w; sx++, x++) {
+	for (let sy=0, y=top; sy<h; sy++, y++) {
+	  let v = (1-alpha*spot[sx][sy])*currentState[x][y];
+	  let d1 = reference[x][y]-currentState[x][y];
+	  let d2 = reference[x][y]-v;
+	  squareSum += d1*d1 - d2*d2;
+	}
       }
     }
     return focusFactor(left+w/2, top+h/2)*squareSum;
+    // return squareSum;
   };
   
   let addSpot = (alpha) => {
     let spot = spots[Math.floor(spots.length*Math.random())];
     let radius = minRadius + (maxRadius-minRadius)*Math.random();
     let scale = radius / spot.radius;
+    let white = Math.random() < .5;
     let shape = getSpotAlpha(spot, scale, 2*Math.PI*Math.random());
     let w = shape.length;
     let h = shape[0].length;
@@ -284,24 +313,40 @@
     let best = 0, bestPos = [0, 0];
     for (let i=0; i<100; i++) {
       let pos = [
-	Math.floor((canvas.width-w)*Math.random()),
-	Math.floor((canvas.height-h)*Math.random())
+	margin+Math.floor((canvas.width-w-2*margin)*Math.random()),
+	margin+Math.floor((canvas.height-h-2*margin)*Math.random())
       ];
-      let d = squareDifferenceImprovement(currentState, pos[0], pos[1], w, h, shape, alpha);
+      let d = squareDifferenceImprovement(currentState, pos[0], pos[1], w, h, shape, alpha, white);
       if (d > best) {
 	best = d;
 	bestPos = pos;
       }
     }
     if (best > 0) {
-      for (let sx=0, x=bestPos[0]; sx<w; sx++, x++) {
-	for (let sy=0, y=bestPos[1]; sy<h; sy++, y++) {
-	  let v = (1-alpha*shape[sx][sy])*currentState[x][y];
-	  v = Math.floor(255*v);
-	  currentImgData.data[4*(y*canvas.width+x)+0] = v;
-	  currentImgData.data[4*(y*canvas.width+x)+1] = v;
-	  currentImgData.data[4*(y*canvas.width+x)+2] = v;
-	  currentImgData.data[4*(y*canvas.width+x)+3] = v;
+      let cw = canvas.width;
+      if (white) {
+	for (let sx=0, x=bestPos[0]; sx<w; sx++, x++) {
+	  for (let sy=0, y=bestPos[1]; sy<h; sy++, y++) {
+	    let v = currentState[x][y] + alpha*shape[sx][sy]*(1-currentState[x][y]);
+	    v = Math.floor(255*v);
+	    let pos = 4*(cw*y+x);
+	    currentImgData.data[pos] = v;
+	    currentImgData.data[pos+1] = v;
+	    currentImgData.data[pos+2] = v;
+	    currentImgData.data[pos+3] = v;
+	  }
+	}
+      } else {
+	for (let sx=0, x=bestPos[0]; sx<w; sx++, x++) {
+	  for (let sy=0, y=bestPos[1]; sy<h; sy++, y++) {
+	    let v = (1-alpha*shape[sx][sy])*currentState[x][y];
+	    v = Math.floor(255*v);
+	    let pos = 4*(cw*y+x);
+	    currentImgData.data[pos] = v;
+	    currentImgData.data[pos+1] = v;
+	    currentImgData.data[pos+2] = v;
+	    currentImgData.data[pos+3] = v;
+	  }
 	}
       }
     }
@@ -312,10 +357,19 @@
   let stepNum = 0;
   
   let step = () => {
-    if (stepNum % dropPeriod == 0)
-      addSpot(.2);
+    if (stepNum % dropPeriod == 0) {
+      for (let i=0; i<dropBatch; i++)
+	addSpot(.1+.2*Math.random());
+    }
     stepNum++;
-    requestAnimationFrame(step);
+    if (stepNum % 100 == 0) console.log(stepNum);
+    if (stepNum % portraitPeriod == 0) {
+      nextPortrait().then(() => {
+	requestAnimationFrame(step);
+      });
+    } else {
+      requestAnimationFrame(step);
+    }
   };
   
   window.addEventListener('DOMContentLoaded', () => {
@@ -335,21 +389,32 @@
       rawContext = canvas.getContext('bitmaprenderer');
       createImageBitmap(currentImgData).then((img) => rawContext.transferFromImageBitmap(img));
       document.body.style.height = '100vh';
-      document.body.style.background = '#321';
+      document.body.style.background = '#fff';
+      let bg = document.createElement('div');
+      bg.style.width = w+'px';
+      bg.style.height = h+'px';
+      bg.style.position = 'absolute';
+      bg.style.top = Math.round((window.innerHeight-h)/2)+'px';
+      bg.style.left = Math.round((window.innerWidth-w)/2)+'px';
+      bg.style.background = '#321';
+      document.body.appendChild(bg);
       document.body.appendChild(canvas);
       let nbLoaded = 0;
-      let stepStarted = false;
-      for (let s of spots) {
-	s.image = new Image();
-	s.image.onload = () => {
-	  nbLoaded++;
-	  if (nbLoaded == spots.length && !stepStarted) {
-	    stepStarted = true;
-	    step();
-	  }
-	};
-	s.image.src = `spots/${s.name}`;
-      }
+      let loadSpot = () => {
+	if (nbLoaded == spots.length) {
+	  console.log('start');
+	  step();
+	} else {
+	  let s = spots[nbLoaded];
+	  s.image = new Image();
+	  s.image.onload = () => {
+	    nbLoaded++;
+	    loadSpot();
+	  };
+	  s.image.src = `spots/${s.name}`;
+	}
+      };
+      loadSpot();
     });
   });
   
