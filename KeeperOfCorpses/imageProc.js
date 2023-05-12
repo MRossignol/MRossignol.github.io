@@ -5,6 +5,15 @@
   let dropPeriod = 1;
   
   let minRadius = 5, maxRadius = 80;
+
+  let focusAreaWeight = 2;
+  
+  let currentImgData;
+  let reference;
+
+  let focusFactor;
+
+  let portrait = 0;
   
   let spots = [
     {name: '01.png', dimensions: [455, 491], center: [238, 233], radius: 110},
@@ -21,6 +30,12 @@
     {name: '12.png', dimensions: [434, 531], center: [213, 238], radius: 60},
     {name: '13.png', dimensions: [389, 442], center: [151, 203], radius: 82}
   ];
+
+  let portraits = [
+    {name: 'female1.jpg', focus: {cx: 482/1024, cy: 590/1024, rx: 460/1024, ry: 560/1024}},
+    {name: 'female2.jpg', focus: {cx: 510/1024, cy: 590/1024, rx: 500/1024, ry: 500/1024}},
+  ];
+  
   
   let drawnSpots = [];
 
@@ -35,6 +50,15 @@
 	let w = img.width, h = img.height;
 	if (options && options.width) w = Math.round(options.width);
 	if (options && options.height) h = Math.round(options.height);
+	if (options && options.maximize) {
+	  if (img.width/img.height > window.innerWidth / window.innerHeight) {
+	    w = window.innerWidth;
+	    h = Math.floor(w * img.height / img.width);
+	  } else {
+	    h = window.innerHeight;
+	    w = Math.floor(h * img.width / img.height);
+	  }
+	}
 	let ocv = document.createElement('canvas');
 	ocv.width = w;
 	ocv.height = h;
@@ -79,6 +103,40 @@
       img.src = url;
     });
   };
+
+  let nextPortrait = () => new Promise((resolve, reject) => {
+    if (portrait < portraits.length) {
+      let p = portraits[portrait];
+      getImageBrightness(`portraits/${p.name}`, {maximize: true, normalize: true}).then((brightness) => {
+	reference = brightness;
+	let w = brightness.length;
+	let h = brightness[0].length;
+	let cx = w*p.focus.cx;
+	let cy = w*p.focus.cy;
+	let hScale = 1/(p.focus.rx*w);
+	let vScale = 1/(p.focus.ry*h);
+	let maxDist = 0;
+	for (let c of [[0, 0], [w, 0], [0, h], [w, h]]) {
+	  let dx = hScale*(c[0]-cx);
+	  let dy = vScale*(c[1]-cy);
+	  let dist = dx*dx+dy*dy;
+	  if (dist > maxDist) maxDist = dist;
+	}
+	maxDist = Math.sqrt(maxDist);
+	focusFactor = (x,y) => {
+	  let dx = hScale*(x-cx);
+	  let dy = vScale*(x-cy);
+	  let d = Math.sqrt(dx*dx+dy*dy)/maxDist;
+	  return d < 1 ? focusFactor : focusFactor*(2-d);
+	};
+	resolve();
+      });
+    } else {
+      for (let c of reference) c.fill(1);
+      resolve();
+    }
+    portrait++;
+  });
 
 
   let getImageDataAlpha = (imgData) => {
@@ -195,16 +253,12 @@
 	}
       }
     }
-    console.log(minX, maxX, minY, maxY);
     let res = [];
     for (let x=minX; x<=maxX; x++) {
       res.push(alpha[x].slice(minY, maxY+1));
     }
     return res;
   };
-
-  let currentImgData;
-  let reference;
 
   let squareDifferenceImprovement =  (currentState, left, top, w, h, spot, alpha) => {
     let squareSum = 0;
@@ -216,7 +270,7 @@
 	squareSum += d1*d1 - d2*d2;
       }
     }
-    return squareSum;
+    return focusFactor(left+w/2, top+h/2)*squareSum;
   };
   
   let addSpot = (alpha) => {
@@ -265,16 +319,8 @@
   };
   
   window.addEventListener('DOMContentLoaded', () => {
-    let sourceImg = new Image();
-    sourceImg.onload = () => {
-      let w, h;
-      if (sourceImg.width/sourceImg.height > window.innerWidth / window.innerHeight) {
-	w = window.innerWidth;
-	h = Math.floor(w * sourceImg.height / sourceImg.width);
-      } else {
-	h = window.innerHeight;
-	w = Math.floor(h * sourceImg.width / sourceImg.height);
-      }
+    nextPortrait().then(() => {
+      let w = reference.length, h = reference[0].length;
       canvas = document.createElement('canvas');
       canvas.style.width = w+'px';
       canvas.width = w;
@@ -291,24 +337,20 @@
       document.body.style.height = '100vh';
       document.body.style.background = '#321';
       document.body.appendChild(canvas);
-      getImageBrightness('female.jpg', {width: w, height: h, normalize: true}).then((brightness) => {
-	reference = brightness;
-	let nbLoaded = 0;
-	let stepStarted = false;
-	for (let s of spots) {
-	  s.image = new Image();
-	  s.image.onload = () => {
-	    nbLoaded++;
-	    if (nbLoaded == spots.length && !stepStarted) {
-	      stepStarted = true;
-	      step();
-	    }
-	  };
-	  s.image.src = `spots/${s.name}`;
-	}
-      });
-    };
-    sourceImg.src = 'female.jpg';
+      let nbLoaded = 0;
+      let stepStarted = false;
+      for (let s of spots) {
+	s.image = new Image();
+	s.image.onload = () => {
+	  nbLoaded++;
+	  if (nbLoaded == spots.length && !stepStarted) {
+	    stepStarted = true;
+	    step();
+	  }
+	};
+	s.image.src = `spots/${s.name}`;
+      }
+    });
   });
   
 })();
