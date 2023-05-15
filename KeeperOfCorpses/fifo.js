@@ -23,15 +23,13 @@ class SimpleFifo {
   }
 
   // take from the start of the list
-  take (number) {
-    number = number ?? 1;
-    let res = [];
+  take () {
+    let res;
     let h = this.head;
-    while (number>0 && h.next != h) {
-      res.push(h.next.v);
+    if (h.next != h) {
+      res = h.next.v;
       h.next = h.next.next;
       h.next.previous = h;
-      number--;
       this._length--;
     }
     return res;

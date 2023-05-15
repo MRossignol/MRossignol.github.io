@@ -308,7 +308,8 @@ let addSpot = () => {
     white: white,
     spot: spotNum,
     scale: scale,
-    angle: angle
+    angle: angle,
+    position: bestPos
   });
 };
 
