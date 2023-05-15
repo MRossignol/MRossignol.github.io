@@ -34,5 +34,11 @@ class SimpleFifo {
     }
     return res;
   }
+
+  
+  clear () {
+    this.head.next = this.head.prev = this.head;
+    this._length = 0;
+  }
   
 }

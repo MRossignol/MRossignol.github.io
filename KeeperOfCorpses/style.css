@@ -17,7 +17,7 @@ canvas {
 }
 
 div.text {
-    postion: absolute;
+    position: absolute;
     left: 0px;
     bottom: 0px;
     height: 32px;

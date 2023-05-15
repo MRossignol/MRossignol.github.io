@@ -10,11 +10,11 @@
   let globalStartTime, imageStartTime;
   let totalTime, imageTime;
 
-  const spotFadeInTime = .5;
+  const spotFadeInTime = 500;
 
   const nbImages = 13;
   const imageDuration = 30;
-  const spotsPerImage = 2000;
+  const spotsPerImage = 1500;
   let currentImage = 0;
   
   const spotsDensityEvolution = [
@@ -28,12 +28,12 @@
   
   const spotsColorEvolution = [
     {t: 0, color: [51, 34, 17]},
-    {t: .9, color: [2, 0, 4]}
+    {t: .9, color: [10, 5, 20]}
   ];
 
 
   // Preprocess evolution of number of spots
-  const shouldHave = [0];
+  let shouldHave = [0];
   let last = 0;
   for (let t=.1; t<=imageDuration; t += .1) {
     let pos = spotsDensityEvolution.findIndex(v => v.t >=t);
@@ -59,20 +59,25 @@
   let colorNum = (col) => {
     let res = 0;
     for (let c of col)
-      res = 256*res+c;
+      res = 256*res+Math.floor(c);
     return res;
   };
+  for (let p of spotsColorEvolution) p.t *= nbImages*imageDuration;
   for (let t=0; t <= nbImages*imageDuration; t++) {
-    let p = spotsColorEvolution.indexOf(v => v.t >= t);
-    if (p ==  0) spotColors.push(colorNum(spotsColorEvolution[0].color));
-    if (p == -1) spotColors.push(colorNum(spotsColorEvolution[spotsColorEvolution.length-1].color));
-    let c = [];
-    let ratio = (t-spotsColorEvolution[p-1].t)/(spotsColorEvolution[p].t-spotsColorEvolution[p-1].t);
-    let pCol = spotsColorEvolution[p-1].color, nCol = spotsColorEvolution[p].color;
-    for (let i of [0, 1, 2]) {
-      c.push(ratio*nCol[i] + (1-ratio)*pCol[i]);
+    let p = spotsColorEvolution.findIndex(v => v.t >= t);
+    if (p ==  0) {
+      spotColors.push(colorNum(spotsColorEvolution[0].color));
+    } else if (p == -1) {
+      spotColors.push(colorNum(spotsColorEvolution[spotsColorEvolution.length-1].color));
+    } else {
+      let c = [];
+      let ratio = (t-spotsColorEvolution[p-1].t)/(spotsColorEvolution[p].t-spotsColorEvolution[p-1].t);
+      let pCol = spotsColorEvolution[p-1].color, nCol = spotsColorEvolution[p].color;
+      for (let i of [0, 1, 2]) {
+	c.push(ratio*nCol[i] + (1-ratio)*pCol[i]);
+      }
+      spotColors.push(colorNum(c));
     }
-    spotColors.push(colorNum(c));
   }
 
   let spotColor = () => {
@@ -118,16 +123,20 @@
       // stableSprites.push(s);
     }
     appearedSprites = [];
-    app.renderer.render(stableSpotsScene, {renderTexture: stableSpotsTexture});
-    stableSpotsSprite.setTexture(stableSpotsTexture);
+    app.renderer.render(stableSpotsScene, {renderTexture: stableSpotsTexture[1]});
+    app.stage.removeChild(stableSpotsSprite);
+    stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture[1]);
+    stableSpotsSprite.zIndex = -1;
+    app.stage.addChild(stableSpotsSprite);
+    stableSpotsTexture = [stableSpotsTexture[1], stableSpotsTexture[0]];
   };
 
   let done = false;
 
   let availableSpots = new SimpleFifo();
   
-  let onWorkerSendsSpot = (spot) => {
-    availableSpots.add(spot);
+  let onWorkerSendsSpot = (e) => {
+    availableSpots.put(e.data);
   };
 
 
@@ -147,8 +156,10 @@
       if (currentImage == nbImages) {
 	done = true;
       } else {
-	worker.postMessage({action: 'next', nbSpots: spotsPerImage});
 	imageStartTime = now;
+	imageDrawnSpots = 0;
+	availableSpots.clear();
+	worker.postMessage({action: 'next', nbSpots: spotsPerImage});
       }
       currentImage++;
       return;
@@ -157,6 +168,7 @@
     let neededSpots = neededNbSpotsImage();
     for (; imageDrawnSpots < neededSpots; imageDrawnSpots++) {
       let spotData = availableSpots.take();
+      if (!spotData) break;
       let spot = spots[spotData.spot];
       let newObj = {
 	startTime: now,
@@ -220,8 +232,8 @@
       worker.onmessage = onWorkerSendsSpot;
       worker.postMessage({action: 'next', nbSpots: spotsPerImage});
       globalStartTime = imageStartTime = Date.now();
-      stableSpotsTexture = PIXI.RenderTexture.create({width: size, height: size});
-      stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture);
+      stableSpotsTexture = [PIXI.RenderTexture.create({width: size, height: size}), PIXI.RenderTexture.create({width: size, height: size})];
+      stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture[0]);
       app.stage.addChild(stableSpotsSprite);
       app.ticker.add(step);
     };
