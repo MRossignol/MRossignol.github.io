@@ -1,5 +1,4 @@
 
-
 const worker = new Worker("worker.js");
 
 let nbSpots = 0;

@@ -3,8 +3,13 @@ let canvasSize;
 let reference;
 let currentState;
 let focusFactor;
+let minRadius, maxRadius;
+let margin;
+
 const focusAreaWeight = 20;
-const margin = 5, minRadius = 5, maxRadius = 60;
+const minAlpha = .1, maxAlpha = .3;
+
+let lastImage = false;
 
 
 let spots = [
@@ -109,6 +114,7 @@ let loadSpots = () => new Promise((resolve, reject) => {
 
 let currentPortrait = -1;
 let nextPortrait = () => {
+  if (lastImage) return;
   currentPortrait++;
   if (currentPortrait < portraits.length) {
     let p = portraits[currentPortrait];
@@ -134,6 +140,7 @@ let nextPortrait = () => {
       return d < 1 ? focusAreaWeight : 1+(focusAreaWeight-1)*(1-(d-1)/(maxDist-1));
     };
   } else {
+    lastImage = true;
     for (let c of reference) c.fill(1);
   }
 };
@@ -257,12 +264,13 @@ let squareDifferenceImprovement =  (left, top, w, h, shape, alpha, white) => {
 };
 
 
-let addSpot = (alpha) => {
+let addSpot = () => {
   let spotNum = Math.floor(spots.length*Math.random());
   let spot = spots[spotNum];
+  let alpha = minAlpha+(maxAlpha-minAlpha)*Math.random();
   let radius = minRadius + (maxRadius-minRadius)*Math.random();
   let scale = radius / spot.radius;
-  let white = Math.random() < .5;
+  let white = lastImage || Math.random() < .5;
   let angle = 2*Math.PI*Math.random();
   let shape = getSpotAlpha(spot, scale, angle);
   let w = shape.length;
@@ -308,6 +316,9 @@ onmessage = (e) => {
   switch (e.data.action) {
   case 'prepare':
     canvasSize = e.data.size;
+    minRadius = Math.max(2, 6*canvasSize/1000);
+    maxRadius = 70*canvasSize/1000;
+    margin = Math.round(5*canvasSize/1000);
     loadSpots().then(loadPortraits).then(() => {
       currentState = [];
       for (let i=0; i<canvasSize; i++)
