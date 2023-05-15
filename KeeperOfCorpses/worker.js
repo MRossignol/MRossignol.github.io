@@ -3,8 +3,8 @@ let canvasSize;
 let reference;
 let currentState;
 let focusFactor;
-const focusAreaWeight = 10;
-const margin = 10, minRadius = 5, maxRadius = 60;
+const focusAreaWeight = 20;
+const margin = 5, minRadius = 5, maxRadius = 60;
 
 
 let spots = [
@@ -57,7 +57,6 @@ let loadImageData = (url, size) => new Promise((resolve, reject) => {
 let loadPortraits = () => new Promise((resolve, reject) => {
   let current = 0;
   let load = () => {
-    console.log('Loading portrait '+current);
     let p = portraits[current];
     loadImageData('portraits/'+p.name, canvasSize).then((imgData) => {
       let brightness = [];
@@ -96,7 +95,6 @@ let loadPortraits = () => new Promise((resolve, reject) => {
 let loadSpots = () => new Promise((resolve, reject) => {
   let current = 0;
   let load = () => {
-    console.log('Loading spot '+current);
     let s = spots[current];
     loadImageBitmap('spots/'+s.name).then((bitmap) => {
       s.img = bitmap;
@@ -166,7 +164,7 @@ let getSpotAlpha = (spot, scale, angle) => {
   ctx.scale(scale, scale);
   ctx.rotate(angle);
   ctx.translate(-spot.center[0], -spot.center[1]);
-  ctx.drawImage(spot.image, 0, 0);
+  ctx.drawImage(spot.img, 0, 0);
   let imgData = ctx.getImageData(0, 0, s, s);
   let alpha = getImageDataAlpha(imgData);
   let threshold = .05;
@@ -186,7 +184,7 @@ let getSpotAlpha = (spot, scale, angle) => {
 
   a = maxX; b = alpha.length-1;
   while (b>a) {
-    m = Math.floor((a+b)/2);
+    m = Math.ceil((a+b)/2);
     if (alpha[m].some(x => x>threshold)) {
       a = m;
     } else {
@@ -216,7 +214,7 @@ let getSpotAlpha = (spot, scale, angle) => {
   
   a = maxY; b = alpha.length-1;
   while (b>a) {
-    m = Math.floor((a+b)/2);
+    m = Math.ceil((a+b)/2);
     if (lineHasVisible(m)) {
       a = m;
     } else {
@@ -269,16 +267,22 @@ let addSpot = (alpha) => {
   let shape = getSpotAlpha(spot, scale, angle);
   let w = shape.length;
   let h = shape[0].length;
+  // usable width / height
+  let uw = canvasSize-w-2*margin;
+  let uh = canvasSize-h-2*margin;
   let best = 0, bestPos = [0, 0];
-  for (let i=0; i<100; i++) {
-    let pos = [
-      margin+Math.floor((canvasSize-w-2*margin)*Math.random()),
-      margin+Math.floor((canvasSize-h-2*margin)*Math.random())
-    ];
-    let d = squareDifferenceImprovement(currentState, pos[0], pos[1], w, h, shape, alpha, white);
-    if (d > best) {
-      best = d;
-      bestPos = pos;
+  let nbBoxes = 10;
+  for (let i=0; i<nbBoxes; i++) {
+    for (let j=0; j<nbBoxes; j++) {
+      let pos = [
+	margin+Math.floor(uw*(i+Math.random())/nbBoxes),
+	margin+Math.floor(uh*(j+Math.random())/nbBoxes)
+      ];
+      let d = squareDifferenceImprovement(pos[0], pos[1], w, h, shape, alpha, white);
+      if (d > best) {
+	best = d;
+	bestPos = pos;
+      }
     }
   }
   if (best > 0) {
@@ -289,7 +293,7 @@ let addSpot = (alpha) => {
     } else {
       for (let sx=0, x=bestPos[0]; sx<w; sx++, x++)
 	for (let sy=0, y=bestPos[1]; sy<h; sy++, y++)
-	  currentState[x][y] = (1-alpha*shape[sx][sy])*currentState[x][y];
+	  currentState[x][y] -= alpha*shape[sx][sy]*currentState[x][y];
     }
   }
   postMessage({
@@ -301,7 +305,6 @@ let addSpot = (alpha) => {
 };
 
 onmessage = (e) => {
-  console.log(e.data);
   switch (e.data.action) {
   case 'prepare':
     canvasSize = e.data.size;
@@ -311,14 +314,14 @@ onmessage = (e) => {
 	currentState.push(new Float32Array(canvasSize));
       for (let i=0; i<canvasSize; i++)
 	currentState[i].fill(1);
-      console.log('ready');
-      postMessage();
+      postMessage('workerReady');
     });
     break;
   case 'next':
     nextPortrait();
-    for (let i=0; i<e.data.nbSpots; i++)
+    for (let i=0; i<e.data.nbSpots; i++) {
       addSpot();
+    }
     break;
   }
 };
