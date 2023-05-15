@@ -8,7 +8,8 @@ let spots = [];
 let timeStart = 0;
 
 let onWorkerSendsSpot = (spot) => {
-  if (nbSpots == 0) {
+  nbSpots++;
+  if (nbSpots == 1) {
     console.log(`${(Date.now()-timeStart).toFixed(1)} ms to get first spot.`);
     timeStart = Date.now();
   } else if (nbSpots == 11) {
@@ -17,15 +18,19 @@ let onWorkerSendsSpot = (spot) => {
     console.log(`${(Date.now()-timeStart).toFixed(1)} ms to get 100 spots.`);
   } else if (nbSpots == 1001) {
     console.log(`${(Date.now()-timeStart).toFixed(1)} ms to get 1000 spots.`);
+  } else if (nbSpots == 2001) {
+    console.log(`${(Date.now()-timeStart).toFixed(1)} ms to get 2000 spots.`);
+    nbSpots = 0;
+    timeStart = Date.now();
+    worker.postMessage({action: 'next', nbSpots: 2001});
   }
-  nbSpots++;
   spots.push(spot);
 };
 
 let onWorkerReady = () => {
   worker.onmessage = onWorkerSendsSpot;
   timeStart = Date.now();
-  worker.postMessage({action: 'next', nbSpots: 1010});
+  worker.postMessage({action: 'next', nbSpots: 2001});
 };
 
 
