@@ -11,18 +11,18 @@
   let globalStartTime, imageStartTime;
   let totalTime, imageTime;
 
-  const spotFadeInTime = 500;
+  const spotFadeInTime = 1000;
 
   const nbImages = 4;
   const imageDuration = 30;
-  const spotsPerImage = [2200, 1500, 1500, 1500, 1000];
+  const spotsPerImage = [1500, 1200, 1200, 1200, 1000];
   let currentImage = 0;
   
   const spotsDensityEvolution = [
     {t: 0, sps: 0},
     {t: 1, sps: 0},
     {t: 10, sps: 1},
-    {t: 20, sps: 1},
+    {t: 25, sps: 1},
     {t: imageDuration, sps: 0}
   ];
 
