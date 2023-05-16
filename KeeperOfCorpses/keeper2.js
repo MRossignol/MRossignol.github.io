@@ -122,7 +122,7 @@
   let transferStabilizedSprites = () => {
     let start = Date.now();
     app2.stage.removeChildren();
-    app2.stage.addChild(stableSpotsSprite);
+    // app2.stage.addChild(stableSpotsSprite);
     for (let s of appearedSprites) {
       app2.stage.addChild(s.sprite);
       app.stage.removeChild(s.sprite);
@@ -133,7 +133,7 @@
     
     // app2.renderer.render(app2.stage, {clear: false, renderTexture: stableSpotsTexture[1]});
     
-    app2.render();
+    app2.renderer.render(app2.stage, {clear: false});
     stableSpotsTexture.update();
 
     // app.stage.removeChild(stableSpotsSprite);
@@ -250,7 +250,7 @@
     let availableHeight = window.innerHeight-textDivHeight;
     let size = Math.min(window.innerWidth, availableHeight);
     app = new PIXI.Application({ background: '#fff', antialias: false, width: size, height: size, transparent: false});
-    app2 = new PIXI.Application({ background: '#fff', antialias: false, width: size, height: size, transparent: false, autoStart: false});
+    app2 = new PIXI.Application({ background: '#fff', antialias: false, width: size, height: size, autoStart: false, clearBeforeRender: false, backgroundAlpha: 0});
     canvas = app.view;
     // canvas.style.opacity = 0;
     makePage(canvas);
