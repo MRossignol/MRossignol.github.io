@@ -14,7 +14,7 @@
 
   const nbImages = 13;
   const imageDuration = 30;
-  const spotsPerImage = 1500;
+  const spotsPerImage = [2200, 1500, 1500, 1500, 1000];
   let currentImage = 0;
   
   const spotsDensityEvolution = [
@@ -33,18 +33,22 @@
 
 
   // Preprocess evolution of number of spots
-  let shouldHave = [0];
-  let last = 0;
-  for (let t=.1; t<=imageDuration; t += .1) {
-    let pos = spotsDensityEvolution.findIndex(v => v.t >=t);
-    let ratio = (t-spotsDensityEvolution[pos-1].t)/(spotsDensityEvolution[pos].t-spotsDensityEvolution[pos-1].t);
-    let sps = (1-ratio)*spotsDensityEvolution[pos-1].sps + ratio*spotsDensityEvolution[pos].sps;
-    let v = last + .1*sps;
-    shouldHave.push(v);
-    last = v;
-  }
-  let multiplier = spotsPerImage / last;
-  shouldHave = shouldHave.map(c => c*multiplier);
+  let shouldHave;
+
+  let preprocessImageNbSpots = (spi) => {
+    shouldHave  = [0];
+    let last = 0;
+    for (let t=.1; t<=imageDuration; t += .1) {
+      let pos = spotsDensityEvolution.findIndex(v => v.t >=t);
+      let ratio = (t-spotsDensityEvolution[pos-1].t)/(spotsDensityEvolution[pos].t-spotsDensityEvolution[pos-1].t);
+      let sps = (1-ratio)*spotsDensityEvolution[pos-1].sps + ratio*spotsDensityEvolution[pos].sps;
+      let v = last + .1*sps;
+      shouldHave.push(v);
+      last = v;
+    }
+    let multiplier = spi / last;
+    shouldHave = shouldHave.map(c => c*multiplier);
+  };
 
   let neededNbSpotsImage = () => {
     let i = Math.ceil(10*imageTime);
@@ -126,7 +130,7 @@
     app.renderer.render(stableSpotsScene, {renderTexture: stableSpotsTexture[1]});
     app.stage.removeChild(stableSpotsSprite);
     stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture[1]);
-    stableSpotsSprite.zIndex = -1;
+    stableSpotsSprite.zIndex = 1;
     app.stage.addChild(stableSpotsSprite);
     stableSpotsTexture = [stableSpotsTexture[1], stableSpotsTexture[0]];
   };
@@ -141,6 +145,8 @@
 
 
   let imageDrawnSpots = 0;
+  let faceNum = 0;
+  let totalSpots = 0;
   
   let step = () => {
     if (done) {
@@ -159,16 +165,24 @@
 	imageStartTime = now;
 	imageDrawnSpots = 0;
 	availableSpots.clear();
-	worker.postMessage({action: 'next', nbSpots: spotsPerImage});
+	faceNum++;
+	preprocessImageNbSpots(spotsPerImage[faceNum]);
+	worker.postMessage({action: 'next', nbSpots: spotsPerImage[faceNum]});
       }
       currentImage++;
       return;
     }
     
     let neededSpots = neededNbSpotsImage();
-    for (; imageDrawnSpots < neededSpots; imageDrawnSpots++) {
+    for (; imageDrawnSpots < neededSpots; imageDrawnSpots++, totalSpots++) {
       let spotData = availableSpots.take();
-      if (!spotData) break;
+      if (!spotData) {
+	console.log('#');
+	break;
+      }
+      spotData.scale*= canvas.width;
+      spotData.position[0] *= canvas.width;
+      spotData.position[1] *= canvas.width;
       let spot = spots[spotData.spot];
       let newObj = {
 	startTime: now,
@@ -184,6 +198,7 @@
       newObj.sprite.scale.set(spotData.scale);
       newObj.sprite.x = spotData.position[0];
       newObj.sprite.y = spotData.position[1];
+      newObj.sprite.zIndex = totalSpots;
       appearingSprites.push(newObj);
       app.stage.addChild(newObj.sprite);
     }
@@ -230,14 +245,16 @@
     worker.onmessage = () => {
       textDiv.innerHTML = '';
       worker.onmessage = onWorkerSendsSpot;
-      worker.postMessage({action: 'next', nbSpots: spotsPerImage});
+      worker.postMessage({action: 'next', nbSpots: spotsPerImage[0]});
+      preprocessImageNbSpots(spotsPerImage[0]);
       globalStartTime = imageStartTime = Date.now();
       stableSpotsTexture = [PIXI.RenderTexture.create({width: size, height: size}), PIXI.RenderTexture.create({width: size, height: size})];
       stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture[0]);
+      stableSpotsSprite.zIndex = 1;
       app.stage.addChild(stableSpotsSprite);
       app.ticker.add(step);
     };
-    worker.postMessage({action: 'prepare', size: size});
+    worker.postMessage({action: 'prepare'});
   });
   
 })();

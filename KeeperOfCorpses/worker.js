@@ -1,5 +1,5 @@
 
-let canvasSize;
+const canvasSize = 500;
 let reference;
 let currentState;
 let focusFactor;
@@ -240,28 +240,27 @@ let getSpotAlpha = (spot, scale, angle) => {
 };
 
 
-let squareDifferenceImprovement =  (left, top, w, h, shape, alpha, white) => {
-  let squareSum = 0;
-  if (white) {
-    for (let sx=0, x=left; sx<w; sx++, x++) {
-      for (let sy=0, y=top; sy<h; sy++, y++) {
-	let v = currentState[x][y] + alpha*shape[sx][sy]*(1-currentState[x][y]);
-	let d1 = reference[x][y]-currentState[x][y];
-	let d2 = reference[x][y]-v;
-	squareSum += d1*d1 - d2*d2;
-      }
-    }
-  } else {
-    for (let sx=0, x=left; sx<w; sx++, x++) {
-      for (let sy=0, y=top; sy<h; sy++, y++) {
-	let v = (1-alpha*shape[sx][sy])*currentState[x][y];
-	let d1 = reference[x][y]-currentState[x][y];
-	let d2 = reference[x][y]-v;
-	squareSum += d1*d1 - d2*d2;
-      }
+let squareDifferenceImprovement =  (left, top, w, h, shape, alpha) => {
+  let squareSumC = 0, squareSumB = 0, squareSumW = 0, best = 0;
+  let white;
+  for (let sx=0, x=left; sx<w; sx++, x++) {
+    for (let sy=0, y=top; sy<h; sy++, y++) {
+      let vB = (1-alpha*shape[sx][sy])*currentState[x][y];
+      let vW = currentState[x][y] + alpha*shape[sx][sy]*(1-currentState[x][y]);
+      let dC = reference[x][y]-currentState[x][y];
+      let dB = reference[x][y]-vB;
+      let dW = reference[x][y]-vW;
+      squareSumC += dC*dC;
+      squareSumB += dB*dB;
+      squareSumW += dW*dW;
     }
   }
-  return squareSum;
+  let deltaW = squareSumC-squareSumW;
+  let deltaB = squareSumC-squareSumB;
+  if (deltaW > deltaB)
+    return {d: deltaW, wh: true};
+  else
+    return {d: deltaB, wh: false};
 };
 
 
@@ -271,7 +270,7 @@ let addSpot = () => {
   let alpha = minAlpha+(maxAlpha-minAlpha)*Math.random();
   let radius = minRadius + (maxRadius-minRadius)*Math.random();
   let scale = radius / spot.radius;
-  let white = lastImage || Math.random() < .5;
+  let white;
   let angle = 2*Math.PI*Math.random();
   let {shape, cx, cy} = getSpotAlpha(spot, scale, angle);
   let w = shape.length;
@@ -280,23 +279,24 @@ let addSpot = () => {
   let uw = canvasSize-w-2*margin;
   let uh = canvasSize-h-2*margin;
   let best = 0, bestPos = [0, 0];
-  let nbBoxes = 5;
-  while (best == 0) {
+  let nbBoxes = Math.min(25, Math.floor(canvasSize/Math.max(w, h)));
+  //while (best == 0) {
     for (let i=0; i<nbBoxes; i++) {
       for (let j=0; j<nbBoxes; j++) {
 	let pos = [
 	  margin+Math.floor(uw*(i+Math.random())/nbBoxes),
 	  margin+Math.floor(uh*(j+Math.random())/nbBoxes)
 	];
-	let d = focusFactor(pos[0]+cx, pos[1]+cy) * squareDifferenceImprovement(pos[0], pos[1], w, h, shape, alpha, white);
+	let {d, wh} = squareDifferenceImprovement(pos[0], pos[1], w, h, shape, alpha);
+	d *= focusFactor(pos[0]+cx, pos[1]+cy);
 	if (d > best) {
+	  white = wh;
 	  best = d;
 	  bestPos = pos;
 	}
       }
     }
-    if  (best == 0) white = !white;
-  }
+  //}
   if (best > 0) {
     if (white) {
       for (let sx=0, x=bestPos[0]; sx<w; sx++, x++)
@@ -307,13 +307,18 @@ let addSpot = () => {
 	for (let sy=0, y=bestPos[1]; sy<h; sy++, y++)
 	  currentState[x][y] -= alpha*shape[sx][sy]*currentState[x][y];
     }
+    let pos = [
+      (bestPos[0]+cx)/canvasSize,
+      (bestPos[1]+cy)/canvasSize
+    ];
+    scale /= canvasSize;
     postMessage({
       white: white,
       spot: spotNum,
       scale: scale,
       angle: angle,
       alpha: alpha,
-      position: [bestPos[0]+cx, bestPos[1]+cy]
+      position: pos
     });
   }
   return best > 0;
@@ -322,9 +327,9 @@ let addSpot = () => {
 onmessage = (e) => {
   switch (e.data.action) {
   case 'prepare':
-    canvasSize = e.data.size;
+    // canvasSize = e.data.size;
     minRadius = Math.max(2, 6*canvasSize/1000);
-    maxRadius = 40*canvasSize/1000;
+    maxRadius = 60*canvasSize/1000;
     margin = Math.round(5*canvasSize/1000);
     console.log(canvasSize, minRadius, maxRadius, margin);
     loadSpots().then(loadPortraits).then(() => {
@@ -338,6 +343,7 @@ onmessage = (e) => {
     break;
   case 'next':
     nextPortrait();
+    console.log(e.data.nbSpots);
     let nb = 0;
     while (nb < e.data.nbSpots) {
       if (addSpot()) nb++;
