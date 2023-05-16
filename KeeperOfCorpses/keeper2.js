@@ -122,26 +122,13 @@
   let transferStabilizedSprites = () => {
     let start = Date.now();
     app2.stage.removeChildren();
-    // app2.stage.addChild(stableSpotsSprite);
     for (let s of appearedSprites) {
       app2.stage.addChild(s.sprite);
       app.stage.removeChild(s.sprite);
-      // stableSprites.push(s);
     }
-    appearedSprites = [];
-    // app.renderer.render(stableSpotsScene, {renderTexture: stableSpotsTexture[1]});
-    
-    // app2.renderer.render(app2.stage, {clear: false, renderTexture: stableSpotsTexture[1]});
-    
+    appearedSprites = [];    
     app2.renderer.render(app2.stage, {clear: false});
     stableSpotsTexture.update();
-
-    // app.stage.removeChild(stableSpotsSprite);
-    // stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture);
-    // stableSpotsSprite.zIndex = 1;
-    // app.stage.addChild(stableSpotsSprite);
-    
-    console.log('Stabilized rendering took '+(Date.now()-start));
   };
 
   let done = false;

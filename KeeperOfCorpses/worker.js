@@ -1,5 +1,5 @@
 
-const canvasSize = 500;
+const canvasSize = 200;
 let reference;
 let currentState;
 let focusFactor;
@@ -328,7 +328,7 @@ onmessage = (e) => {
   switch (e.data.action) {
   case 'prepare':
     // canvasSize = e.data.size;
-    minRadius = Math.max(2, 6*canvasSize/1000);
+    minRadius = Math.max(2, 10*canvasSize/1000);
     maxRadius = 60*canvasSize/1000;
     margin = Math.round(5*canvasSize/1000);
     console.log(canvasSize, minRadius, maxRadius, margin);
