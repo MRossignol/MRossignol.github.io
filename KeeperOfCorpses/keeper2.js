@@ -29,7 +29,7 @@
   
   const spotsColorEvolution = [
     {t: 0, color: [51, 34, 17]},
-    {t: .9, color: [10, 5, 20]}
+    {t: .85, color: [10, 7, 25]}
   ];
 
 
@@ -250,12 +250,10 @@
     let availableHeight = window.innerHeight-textDivHeight;
     let size = Math.min(window.innerWidth, availableHeight);
     app = new PIXI.Application({ background: '#fff', antialias: false, width: size, height: size, transparent: false});
-    app2 = new PIXI.Application({ background: '#fff', antialias: false, width: size, height: size, autoStart: false, clearBeforeRender: false, backgroundAlpha: 0});
+    app2 = new PIXI.Application({ background: '#fff', antialias: false, width: size, height: size, autoStart: false, clearBeforeRender: false, backgroundAlpha: 0, preserveDrawingBuffer: true});
     canvas = app.view;
     // canvas.style.opacity = 0;
     makePage(canvas);
-    app2.view.classList.add('secondary');
-    document.body.appendChild(app2.view);
     app2.render();
     worker.onmessage = () => {
       textDiv.innerHTML = '';

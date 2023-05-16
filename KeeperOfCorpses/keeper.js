@@ -137,6 +137,7 @@
     stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture[0]);
     stableSpotsSprite.zIndex = 1;
     app.stage.addChild(stableSpotsSprite);
+    app.render();
     console.log('Stabilized rendering took '+(Date.now()-start));
   };
 
@@ -194,7 +195,6 @@
 	alpha: spotData.alpha,
 	sprite: new PIXI.Sprite(spot.texture)
       };
-      // TODO : Harmonize rotation center in worker
       newObj.sprite.alpha = 0;
       newObj.sprite.anchor.set(spot.center[0]/spot.dimensions[0], spot.center[1]/spot.dimensions[1]);
       if (!spotData.white) {
