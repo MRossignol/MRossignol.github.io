@@ -5,7 +5,7 @@
 
   const worker = new Worker("worker.js");
   
-  let canvas, app, stableSpotsTexture, stableSpotsSprite, stableSpotsScene;
+  let canvas, app, app2, stableSpotsTexture, stableSpotsSprite, stableSpotsScene;
   let canvasRenderer;
 
   let globalStartTime, imageStartTime;
@@ -121,22 +121,26 @@
 
   let transferStabilizedSprites = () => {
     let start = Date.now();
-    // console.log(stableSprites.length);
-    stableSpotsScene = new PIXI.Container();
-    stableSpotsScene.addChild(stableSpotsSprite);
+    app2.stage.removeChildren();
+    app2.stage.addChild(stableSpotsSprite);
     for (let s of appearedSprites) {
-      stableSpotsScene.addChild(s.sprite);
+      app2.stage.addChild(s.sprite);
       app.stage.removeChild(s.sprite);
       // stableSprites.push(s);
     }
     appearedSprites = [];
     // app.renderer.render(stableSpotsScene, {renderTexture: stableSpotsTexture[1]});
-    canvasRenderer.render(stableSpotsScene, {renderTexture: stableSpotsTexture[1]});
-    stableSpotsTexture = [stableSpotsTexture[1], stableSpotsTexture[0]];
-    app.stage.removeChild(stableSpotsSprite);
-    stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture[0]);
-    stableSpotsSprite.zIndex = 1;
-    app.stage.addChild(stableSpotsSprite);
+    
+    // app2.renderer.render(app2.stage, {clear: false, renderTexture: stableSpotsTexture[1]});
+    
+    app2.render();
+    stableSpotsTexture.update();
+
+    // app.stage.removeChild(stableSpotsSprite);
+    // stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture);
+    // stableSpotsSprite.zIndex = 1;
+    // app.stage.addChild(stableSpotsSprite);
+    
     console.log('Stabilized rendering took '+(Date.now()-start));
   };
 
@@ -246,19 +250,24 @@
     let availableHeight = window.innerHeight-textDivHeight;
     let size = Math.min(window.innerWidth, availableHeight);
     app = new PIXI.Application({ background: '#fff', antialias: false, width: size, height: size, transparent: false});
+    app2 = new PIXI.Application({ background: '#fff', antialias: false, width: size, height: size, transparent: false, autoStart: false});
     canvas = app.view;
+    // canvas.style.opacity = 0;
     makePage(canvas);
+    app2.view.classList.add('secondary');
+    document.body.appendChild(app2.view);
+    app2.render();
     worker.onmessage = () => {
       textDiv.innerHTML = '';
       worker.onmessage = onWorkerSendsSpot;
       worker.postMessage({action: 'next', nbSpots: spotsPerImage[0]});
       preprocessImageNbSpots(spotsPerImage[0]);
       globalStartTime = imageStartTime = Date.now();
-      stableSpotsTexture = [PIXI.RenderTexture.create({width: size, height: size}), PIXI.RenderTexture.create({width: size, height: size})];
-      stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture[0]);
+      app2.render();
+      stableSpotsTexture = PIXI.Texture.from(app2.view);
+      stableSpotsSprite = new PIXI.Sprite(stableSpotsTexture);
       stableSpotsSprite.zIndex = 1;
       app.stage.addChild(stableSpotsSprite);
-      canvasRenderer = app.renderer; // PIXI.autoDetectRenderer({ background: '#fff', antialias: false, width: size, height: size, transparent: false});
       app.ticker.add(step);
     };
     worker.postMessage({action: 'prepare'});
