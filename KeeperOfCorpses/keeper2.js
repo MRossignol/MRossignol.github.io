@@ -6,8 +6,8 @@
   
   const workerOptions = {
     action: 'prepare',
-    canvasSize: 200, // increase for higher quality, decrease for lower CPU usage. NOT drawing size, just for finding spot locations.
-    minRadius: 1, // percentage of canvas size
+    canvasSize: 100, // increase for higher quality, decrease for lower CPU usage. NOT drawing size, just for finding spot locations.
+    minRadius: 1.5, // percentage of canvas size
     maxRadius: 6, // percentage of canvas size
     margin: 0.5,  // percentage of canvas size
     minAlpha: 0.1,
@@ -22,7 +22,7 @@
   const spotFadeInTime = 1000;
   
   const imageDuration = 30;
-  const spotsPerImage = [1500, 1200, 1200, 1200, 1200, 1200, 1000];
+  const spotsPerImage = [1200, 900, 900, 900, 900, 900, 900];
 
   // t in seconds
   const spotsDensityEvolution = [
@@ -138,7 +138,7 @@
   let colorHash = (col) => {
     let res = '#';
     for (let c of col)
-      res += (c < 16 ? '0' : '')+c.toString(16);
+      res += (c < 16 ? '0' : '')+Math.floor(c).toString(16);
     return res;
   };
   
@@ -147,6 +147,7 @@
     let p = spotsColorEvolution.findIndex(v => v.t >= t);
     if (p ==  0) {
       spotColors.push(colorNum(spotsColorEvolution[0].color));
+      portraits[0].textColor = colorHash(spotsColorEvolution[0].color);
     } else if (p == -1) {
       spotColors.push(colorNum(spotsColorEvolution[spotsColorEvolution.length-1].color));
     } else {
@@ -158,6 +159,7 @@
       }
       spotColors.push(colorNum(c));
       if (t % imageDuration == 0) {
+	console.log(colorHash(c));
 	portraits[t/imageDuration].textColor = colorHash(c);
       }
     }
@@ -201,12 +203,20 @@
   let scheduleText = () => {
     setTimeout(() => {
       textDiv.innerHTML = portraits[currentImage].text;
-      textDiv.style.transition = `all ${textAnimationTiming.fullyVisible-textAnimationTiming.startAppearing}s`;
-      textDiv.style.opacity = 1;
+      textDiv.style.opacity = 0;
+      textDiv.style.filter = 'blur(3px)';
+      setTimeout(() => {
+	console.log(portraits[currentImage].textColor);
+	textDiv.style.color = portraits[currentImage].textColor;
+	textDiv.style.transition = `all ${textAnimationTiming.fullyVisible-textAnimationTiming.startAppearing}s`;
+	textDiv.style.filter = '';
+	textDiv.style.opacity = .7;
+      });
     }, 1000*textAnimationTiming.startAppearing);
     setTimeout(() => {
       textDiv.style.transition = `all ${textAnimationTiming.fullyGone-textAnimationTiming.startDisappearing}s`;
       textDiv.style.opacity = 0;
+      textDiv.style.filter = 'blur(15px)';
     }, 1000*textAnimationTiming.startDisappearing);
   };
 
@@ -222,9 +232,10 @@
       if (currentImage == nbImages) {
 	done = true;
       } else {
+	console.log('Finishing image. Spots in queue: '+availableSpots.length);
 	imageStartTime = now;
 	imageDrawnSpots = 0;
-	availableSpots.clear();
+	// availableSpots.clear();
 	currentImage++;
 	preprocessImageNbSpots(spotsPerImage[currentImage]);
 	// worker.postMessage({action: 'next', nbSpots: spotsPerImage[currentImage]});
