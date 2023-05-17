@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+    font-family: 'IM Fell English', serif;
+}
 
 body {
     background-color: #fff;
@@ -5,8 +9,8 @@ body {
 
 div.holder {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50vh;
+    left: 50vw;
     transform: translate(-50%, -50%);
 }
 
@@ -29,4 +33,41 @@ div.text {
     width: 100%;
     line-height: 32px;
     font-size: 16px;
+    text-align: center;
+}
+
+div.waitDiv {
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    text-align: center;
+    color: #543;
+    padding: 30px;
+    border: 1px dashed #aaa;
+    line-height: 1.8;
+}
+
+div.readyDiv {
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    text-align: center;
+    color: #543;
+    padding: 30px;
+    line-height: 1.8;
+}
+
+a {
+    color: #448;
+}
+
+button {
+    padding: 12px 20px 12px 20px;
+    font-family: serif;
+    font-size: 20px;
+    margin-top: 20px;
 }

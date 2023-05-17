@@ -1,40 +1,18 @@
 
-const canvasSize = 200;
+let canvasSize = 200;
+let margin = 0.5;
+let minRadius = 1, maxRadius = 6;
+let minAlpha = .1, maxAlpha = .3;
+let focusAreaWeight = 20;
+
 let reference;
 let currentState;
 let focusFactor;
-let minRadius, maxRadius;
-let margin;
-
-const focusAreaWeight = 20;
-const minAlpha = .1, maxAlpha = .3;
-
 let lastImage = false;
 
 
-let spots = [
-  {name: '01.png', dimensions: [455, 491], center: [238, 233], radius: 110},
-  {name: '02.png', dimensions: [544, 743], center: [265, 350], radius: 150},
-  {name: '03.png', dimensions: [486, 685], center: [260, 300], radius: 130},
-  {name: '04.png', dimensions: [681, 699], center: [350, 300], radius: 160},
-  {name: '05.png', dimensions: [555, 678], center: [297, 232], radius: 130},
-  {name: '06.png', dimensions: [552, 734], center: [302, 329], radius: 140},
-  {name: '07.png', dimensions: [456, 581], center: [257, 262], radius: 120},
-  {name: '08.png', dimensions: [427, 415], center: [193, 179], radius: 70},
-  {name: '09.png', dimensions: [380, 537], center: [186, 254], radius: 60},
-  {name: '10.png', dimensions: [320, 388], center: [148, 168], radius: 60},
-  {name: '11.png', dimensions: [403, 460], center: [203, 220], radius: 82},
-  {name: '12.png', dimensions: [434, 531], center: [213, 238], radius: 60},
-  {name: '13.png', dimensions: [389, 442], center: [151, 203], radius: 82}
-];
+let spots, portraits;
 
-
-let portraits = [
-  {name: 'female1.jpg', focus: {cx: 482/1024, cy: 590/1024, rx: 460/2048, ry: 560/2048}},
-  {name: 'female2.jpg', focus: {cx: 510/1024, cy: 590/1024, rx: 500/2048, ry: 500/2048}},
-  {name: 'female3.jpg', focus: {cx: 516/1024, cy: 600/1024, rx: 495/2048, ry: 500/2048}},
-  {name: 'female4.jpg', focus: {cx: 500/1024, cy: 620/1024, rx: 486/2048, ry: 545/2048}},
-];
 
 
 let loadImageBitmap = url =>
@@ -114,7 +92,7 @@ let loadSpots = () => new Promise((resolve, reject) => {
 
 let currentPortrait = -1;
 let nextPortrait = () => {
-  if (lastImage) return;
+  if (lastImage) return false;
   currentPortrait++;
   console.log('Loading portrait '+currentPortrait);
   if (currentPortrait < portraits.length) {
@@ -144,6 +122,7 @@ let nextPortrait = () => {
     lastImage = true;
     for (let c of reference) c.fill(1);
   }
+  return true;
 };
 
 
@@ -327,26 +306,49 @@ let addSpot = () => {
 onmessage = (e) => {
   switch (e.data.action) {
   case 'prepare':
-    // canvasSize = e.data.size;
-    minRadius = Math.max(2, 10*canvasSize/1000);
-    maxRadius = 60*canvasSize/1000;
-    margin = Math.round(5*canvasSize/1000);
-    console.log(canvasSize, minRadius, maxRadius, margin);
+    spots = e.data.spots;
+    portraits = e.data.portraits;
+    canvasSize = e.data.canvasSize ?? canvasSize;
+    minRadius = e.data.minRadius ?? minRadius;
+    maxRadius = e.data.maxRadius ?? maxRadius;
+    margin = e.data.margin ?? margin;
+    minAlpha = e.data.minAlpha ?? minAlpha;
+    maxAlpha = e.data.maxAlpha ?? maxAlpha;
+    focusAreaWeight = e.data.focusAreaWeight ?? focusAreaWeight;
+    // minRadius, maxRadius and margin are expressed in percentage of image size
+    minRadius *= canvasSize/100;
+    maxRadius *= canvasSize/100;
+    margin = Math.round(margin*canvasSize/100);
+    
     loadSpots().then(loadPortraits).then(() => {
       currentState = [];
-      for (let i=0; i<canvasSize; i++)
-	currentState.push(new Float32Array(canvasSize));
-      for (let i=0; i<canvasSize; i++)
-	currentState[i].fill(1);
+      for (let i=0; i<canvasSize; i++) {
+	let col = new Float32Array(canvasSize);
+	col.fill(1);
+	currentState.push(col);
+      }
       postMessage('workerReady');
     });
     break;
   case 'next':
+    let t0 = Date.now();
     nextPortrait();
-    console.log(e.data.nbSpots);
     let nb = 0;
     while (nb < e.data.nbSpots) {
       if (addSpot()) nb++;
+    }
+    console.log(`Got ${nb} spots in ${Date.now()-t0} ms`);
+    break;
+  case 'all':
+    let pos = 0;
+    while (nextPortrait()) {
+      let t0 = Date.now();
+      let nb = 0;
+      while (nb < e.data.nbSpots[pos]) {
+	if (addSpot()) nb++;
+      }
+      console.log(`Got ${nb} spots in ${Date.now()-t0} ms`);
+      pos++;
     }
     break;
   }
