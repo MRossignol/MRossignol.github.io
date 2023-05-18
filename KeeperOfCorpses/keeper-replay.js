@@ -232,7 +232,6 @@
 	  // console.log('#');
 	  break;
 	}
-	console.log(spotData);
 	spotData.scale*= size;
 	spotData.position[0] *= size;
 	spotData.position[1] *= size;
