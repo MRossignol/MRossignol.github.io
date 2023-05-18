@@ -52,3 +52,41 @@ function applyDistortion (audioBuffer) {
   }
 }
 
+
+let rendered = null;
+
+let playRendered = () => {
+  let audioCtx = new AudioContext();
+  const song = audioCtx.createBufferSource();
+  song.buffer = rendered;
+  song.connect(audioCtx.destination);
+  song.start();
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+
+  let ac = new AudioContext();
+  
+  let fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.addEventListener('change', () => {
+    let reader = new FileReader();
+    reader.onload = function(ev) {
+      ac.decodeAudioData(ev.target.result).then(function(buffer) {
+	applyDistortion(buffer);
+	rendered = buffer;
+	document.body.innerHTML = '<p>Rendering complete.</p>\n<p><input type="button" id="playButton" value="Play"/> &nbsp;or&nbsp;<input type="button" id="saveButton" value="Save"/>';
+	setTimeout(() => {
+	  document.getElementById('playButton').addEventListener('click', playRendered);
+	  document.getElementById('saveButton').addEventListener('click', () => {
+	    new WaveWriter(rendered).saveWaveFile('bass_wave_sequence.wav');
+	  });
+	});
+      });
+    };
+    reader1.readAsArrayBuffer(fileInput.files[0]);
+  });
+  
+  document.body.appendChild(fileInput);
+  
+});
