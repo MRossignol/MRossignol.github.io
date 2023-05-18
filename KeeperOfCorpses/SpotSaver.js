@@ -10,7 +10,6 @@ class SimpleFifo {
     });
   }
 
-  
   // put at the end of the list
   put (value) {
     let holder = {
@@ -23,7 +22,6 @@ class SimpleFifo {
     this._length++;
   }
 
-  
   // take from the start of the list
   take () {
     let res;
@@ -42,25 +40,5 @@ class SimpleFifo {
     this.head.next = this.head.prev = this.head;
     this._length = 0;
   }
-
-
-  forEach (fun) {
-    let current = this.head.next;
-    while (current != this.head) {
-      fun(current.v);
-      current = current.next;
-    }
-  }
-
   
-  reduce (fun, initVal) {
-    let acc = initVal ?? 0;
-    let current = this.head.next;
-    while (current != this.head) {
-      acc = fun(acc, current.v);
-      current = current.next;
-    }
-    return acc;
-  }
-
 }
