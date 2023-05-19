@@ -38,7 +38,7 @@ class SpotStore {
     const maxScale = this.storage.reduce((acc, x) => Math.max(acc, x.scale), 0);
     const maxAlpha = this.storage.reduce((acc, x) => Math.max(acc, x.alpha), 0);
     const size = 3*4 + this.storage.length*spotSize;
-    const buffer = new ArrayBuffer(size/8);
+    const buffer = new ArrayBuffer(size);
     const view = new DataView(buffer);
     view.setUint32(0, this.storage.length);
     view.setFloat32(4, maxScale);
