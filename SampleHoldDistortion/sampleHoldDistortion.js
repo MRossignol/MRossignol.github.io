@@ -1,8 +1,8 @@
 
-let followChangeProb = .1;
-let holdChangeProb = .1;
+let followChangeProb = .5;
+let holdChangeProb = .2;
 
-let maxSlope = 1;
+let maxSlope = .03;
 
 const s_follow = 0;
 const s_hold = 1;
@@ -32,6 +32,7 @@ function applyDistortion (audioBuffer) {
       changeStage = Math.random() < holdChangeProb;
       break;
     case s_converge:
+      changeStage = true;
       for (let c=0; c<nbChannels; c++) {
 	if (lastVal[c]-channels[c][i] > maxSlope) {
 	  lastVal[c] -= maxSlope;
@@ -84,7 +85,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	});
       });
     };
-    reader1.readAsArrayBuffer(fileInput.files[0]);
+    reader.readAsArrayBuffer(fileInput.files[0]);
   });
   
   document.body.appendChild(fileInput);
