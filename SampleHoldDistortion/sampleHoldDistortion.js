@@ -60,9 +60,9 @@ let song, distortion, gain, hpf;
 
 ac.audioWorklet.addModule('sampleHoldProcessor.js').then(() => {
 
-  distortion = new AudioWorkletNode(ac, 'SampleHoldDistortion', {parameterData:{maxConvergeSlope: 0.1, followEndProbability: 0.5, holdEndProbability: 0.1}});
+  distortion = new AudioWorkletNode(ac, 'SampleHoldDistortion', {numberOfOutputs: 1, outputChannelCount: [2], parameterData:{maxConvergeSlope: 0.1, followEndProbability: 0.5, holdEndProbability: 0.1}});
   gain = new GainNode(ac, {gain: 1});
-  hpf = new BiquadFilterNode(ac, {frequency: 3200, type:"highpass"});
+  hpf = new BiquadFilterNode(ac, {frequency: 3200, type:"highpass", Q: 1});
 
   distortion.connect(gain);
   gain.connect(hpf);
@@ -75,11 +75,13 @@ window.addEventListener('DOMContentLoaded', () => {
   
   document.querySelector('input#fileInput').addEventListener('change', () => {
     document.querySelector('input#playButton').disabled = true;
+    document.querySelector('input#saveButton').disabled = true;
     let reader = new FileReader();
     reader.onload = function(ev) {
       ac.decodeAudioData(ev.target.result).then(function(buffer) {
 	songBuffer = buffer;
 	document.querySelector('input#playButton').disabled = false;
+	document.querySelector('input#saveButton').disabled = false;
       });
     };
     reader.readAsArrayBuffer(fileInput.files[0]);
@@ -92,6 +94,48 @@ window.addEventListener('DOMContentLoaded', () => {
     song.connect(distortion);
     song.start();
   });
+  
+  document.querySelector('input#saveButton').addEventListener('click', () => {
+    let oac = new OfflineAudioContext(2, songBuffer.length+100, ac.sampleRate);
+    oac.audioWorklet.addModule('sampleHoldProcessor.js').then(() => {
+      let song = new AudioBufferSourceNode(oac, {buffer: songBuffer});
+      let distortion = new AudioWorkletNode(oac, 'SampleHoldDistortion', {parameterData:{
+	maxConvergeSlope: Math.max(document.querySelector('input#maxSlopeControl').value / 100, .001),
+	followEndProbability: Math.max(document.querySelector('input#followEndControl').value / 100, .001),
+	holdEndProbability: Math.max(document.querySelector('input#holdEndControl').value / 100, .001)
+      }});
+      let hpf = new BiquadFilterNode(oac, {
+	type:"highpass",
+	frequency: 100*Math.pow(2, document.querySelector('input#hpfControl').value / 15),
+	Q: document.querySelector('input#hpfqControl').value / 10
+      });
+      song.connect(distortion);
+      distortion.connect(hpf);
+      hpf.connect(oac.destination);
+    
+      song.playbackRate.value = document.querySelector('input#speedControl').value / 30;
+      song.start();
+      oac.startRendering().then( function(buffer) {
+	var max = 0, amp, c, data;
+	for (c = 0; c<buffer.numberOfChannels; c++) {
+	  data = buffer.getChannelData(c);
+	  data.forEach(function(v) {
+	    if (Math.abs(v) > max) max = Math.abs(v);
+	  });
+	}
+	amp = .8 / max;
+	for (c=0; c<buffer.numberOfChannels; c++) {
+	  data = buffer.getChannelData(c);
+	  data.forEach(function(v, i) {
+	    data[i] = v*amp;
+	  });
+	}
+	let waveWriter = new WaveWriter(buffer);
+	waveWriter.saveWaveFile('distorted.wav');
+      });
+    });
+  });
+  
 
   document.querySelector('input#followEndControl').addEventListener('input', (e) => {
     let p = Math.max(e.target.value / 100, .001);
@@ -108,7 +152,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelector('input#maxSlopeControl').addEventListener('input', (e) => {
     let p = Math.max(e.target.value / 100, .001);
     distortion.parameters.get('maxConvergeSlope').value = p;
-    document.querySelector('td#maxConvergeValue').innerHTML = p.toFixed(3);
+    document.querySelector('td#maxSlopeValue').innerHTML = p.toFixed(3);
   });
 
   document.querySelector('input#speedControl').addEventListener('input', (e) => {
@@ -130,7 +174,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   document.querySelector('input#hpfqControl').addEventListener('input', (e) => {
-    let q = e/10;
+    let q = e.target.value/10;
     hpf.Q.value = q;
     document.querySelector('td#hpfqValue').innerHTML = q.toFixed(3);
   });
