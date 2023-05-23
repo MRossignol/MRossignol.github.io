@@ -2,19 +2,19 @@
 let ac = new AudioContext();
 
 let parameters = {
-  period: 1,
   tickAttack: .001,
-  tickDuration: .005,
   tickMinAmp: .001
 };
 
 
 let duration = (t) => (1.5+Math.sin(t))/5;
 let tickPeriod = (t) => (1.5+Math.sin(10*t))/50;
-let tickDuration = (t) => (5+Math.sin(15*t))/500;
-let tickFrequency = (t) => (4+Math.sin(8*t))*1500;
-let silence = (t) => (1.5+Math.sin(2*t))/5;
+let tickDuration = (t) => (5+Math.sin(15*t))/1000;
+let tickFrequency = (t) => (4+Math.sin(8*t))*500;
+let silence = (t) => (1.5+Math.sin(2*t))/3;
 
+
+// Mix with low-pass filtered version (1000 Hz, 12dB slope)
 
 
 let schedulePeriod = .1;
@@ -24,7 +24,7 @@ let lastCreaks = [{time: -100, nextT: 0, nodes: [], over: true}];
 
 let scheduleTick = (t, nodesStore) => {
   let {tickAttack, tickMinAmp} = parameters;
-  let oscillator = new OscillatorNode(ac, {type: 'triangle', frequency: tickFrequency(t)});
+  let oscillator = new OscillatorNode(ac, {type: 'sawtooth', frequency: randomize(tickFrequency(t), 1000)});
   let gain = new GainNode(ac);
   gain.gain.setValueAtTime(0, 0);
   gain.gain.setValueAtTime(0, t);
@@ -40,14 +40,13 @@ let scheduleTick = (t, nodesStore) => {
 
 
 let schedule = (t) => {
-  let {period, tickFrequency, tickDuration, tickMinAmp} = parameters;
   let lastCreak = lastCreaks[lastCreaks.length-1];
   let nextCreakTime = lastCreak.nextT;
   if (nextCreakTime < t) nextCreakTime = t;
   
   if (nextCreakTime < t+schedulePeriod) {
-    let nextCreak = {time: nextCreakTime, nextT: nextCreakTime + duration(t) + silence(t), over: false, nodes: []};
-    for (let tt=nextCreakTime; tt < nextCreakTime+duration(t); tt +=tickPeriod(t)) {
+    let nextCreak = {time: nextCreakTime, nextT: nextCreakTime + duration(t) + randomize(silence(t), silence(t)), over: false, nodes: []};
+    for (let tt=nextCreakTime; tt < nextCreakTime+duration(t); tt +=randomize(tickPeriod(t), .08)) {
       scheduleTick(tt, nextCreak.nodes);
     }
     setTimeout(
