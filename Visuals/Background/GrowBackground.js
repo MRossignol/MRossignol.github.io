@@ -10,7 +10,7 @@ class GrowBackground extends BackgroundBase {
   minRadius = 15;
   maxRadius = 25;
 
-  createdSpot = 0;
+  createdSpots = 0;
 
   profile = [];
 
