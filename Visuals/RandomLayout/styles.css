@@ -1,0 +1,15 @@
+
+div.positionedContentHolder {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+div.positionedContent {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    color: #223;    
+}
