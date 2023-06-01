@@ -1,7 +1,7 @@
 
 class GrowBackground extends BackgroundBase {
 
-  spotGrowTime = 1000;
+  spotGrowTime = 1;
   spotGrowStartScale = .4;
   spotGrowEndScale = 1;
   spotGrowStartAlpha = 0;
@@ -9,6 +9,7 @@ class GrowBackground extends BackgroundBase {
   spotsPerSecond = 40;
   minRadius = 15;
   maxRadius = 25;
+  overlap = .3;
 
   createdSpots = 0;
 
@@ -40,6 +41,7 @@ class GrowBackground extends BackgroundBase {
     this.spotsPerSecond = options.spotsPerSecond ?? this.spotsPerSecond;
     this.minRadius = options.minRadius ?? this.minRadius;
     this.maxRadius = options.maxRadius ?? this.maxRadius;
+    this.overlap = options.overlap ?? this.overlap;
     for (let s of this.spots) {
       s.texture = PIXI.Texture.from(`spots/${s.name}`);
     }
@@ -65,7 +67,7 @@ class GrowBackground extends BackgroundBase {
   stepStart() {
     const w = this.app.view.width;
     while (this.profile.length < w) {
-      this.profile.push({y: 0, object: {growing: false, center: [i, 0]}});
+      this.profile.push({y: 0, object: {growing: false, center: [this.profile.length, 0]}});
     }
   }
   
@@ -84,8 +86,8 @@ class GrowBackground extends BackgroundBase {
 	}
       }
       if (y < window.innerHeight+100 /* !o.growing */ ) {
-	x += (o.center[0]-x)/3;
-	y += (o.center[1]-y)/3;
+	x += this.overlap*(o.center[0]-x);
+	y += this.overlap*(o.center[1]-y);
 	let spot = this.spots[Math.floor(this.spots.length*Math.random())];
 	let newObj = {
 	  startTime: now,
@@ -100,7 +102,7 @@ class GrowBackground extends BackgroundBase {
 	newObj.sprite.rotation = newObj.angle;
 	newObj.sprite.x = x;
 	newObj.sprite.y = y;
-	this.objects.push(newObj);
+	this.liveObjects.push(newObj);
 	this.app.stage.addChild(newObj.sprite);
 	for (let i=Math.max(Math.ceil(x-radius), 0), max=Math.min(Math.floor(x+radius), w-1); i<max; i++) {
 	  let topY = y + Math.sqrt(radius*radius - (x-i)*(x-i));
@@ -112,8 +114,10 @@ class GrowBackground extends BackgroundBase {
 
   updateObjects () {
     const now = this.currentTime;
-    for (let o of this.objects) {
+    let someGrowing = false;
+    for (let o of this.liveObjects) {
       if (!o.growing) continue;
+      someGrowing = true;
       if (now - o.startTime > this.spotGrowTime) {
 	o.growing = false;
 	o.sprite.scale.set(o.scale * this.spotGrowEndScale);
@@ -125,6 +129,7 @@ class GrowBackground extends BackgroundBase {
 	o.sprite.alpha = this.spotGrowStartAlpha + smoothRatio*(this.spotGrowEndAlpha-this.spotGrowStartAlpha);
       }
     }
+    this._finished = this.liveObjects.length && !someGrowing;
   }
 
   

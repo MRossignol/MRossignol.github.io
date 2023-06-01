@@ -28,7 +28,9 @@ class BackgroundBase {
       backgroundAlpha: 0,
       clearBeforeRender: false,
       preserveDrawingBuffer: true,
-      resizeTo: window});
+      width: window.screen.width,
+      height: window.screen.height
+    });
     this.app.render();
     this.app.view.backgroundObject = this;
     this.frozenSceneTexture = PIXI.Texture.from(this.freezeApp.view);
@@ -47,7 +49,7 @@ class BackgroundBase {
   
   
   get referenceTime () {
-    return Date.now();
+    return Date.now()/1000;
   }
 
   
@@ -72,6 +74,7 @@ class BackgroundBase {
       }
       existing.pop().remove();
     }
+    this.run();
   }
 
 
@@ -118,7 +121,9 @@ class BackgroundBase {
 
   freezeStableObjects () {
     const t = this.currentTime;
-    if (t - this.lastFreezeTime < .5) return;
+    if (t - this.lastFreezeTime < .5) {
+      return;
+    }
     this.lastFreezeTime = t;
     let newLiveObjects = [];
     this.freezeApp.stage.removeChildren();
@@ -139,6 +144,7 @@ class BackgroundBase {
   step() {
     if (this._finished) {
       this.app.stop();
+      this.freezeApp.stop();
       return;
     }
     this.stepStart();

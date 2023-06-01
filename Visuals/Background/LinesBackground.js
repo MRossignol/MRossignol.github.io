@@ -1,5 +1,5 @@
 
-class GrowBackground extends BackgroundBase {
+class LinesBackground extends BackgroundBase {
 
   growTime = 1000;
   growStartScale = .4;
