@@ -27,11 +27,11 @@ class LinesBackground extends BackgroundBase {
   get exposedOptions () {
     let options = super.exposedOptions;
     options.growTime = 'milliseconds';
-    options.growStartScale = 'ratio';
-    options.growEndScale = 'ratio';
+    options.growStartScale = 'scale';
+    options.growEndScale = 'scale';
     options.growStartAlpha = 'alpha';
     options.growEndAlpha = 'alpha';
-    options.objectsPerSecond = 'number';
+    options.objectsPerSecond = 'rate';
     options.minRadius = 'pixels';
     options.maxRadius = 'pixels';
     return options;
