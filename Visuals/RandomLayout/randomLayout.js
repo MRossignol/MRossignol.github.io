@@ -27,7 +27,8 @@ let computePositions = () => {
     e.s = [e.div.offsetWidth/2, e.div.offsetHeight/2];
   }
   let solved = false, l = 0;
-  for (; l<20 && !solved; l++) {
+  while (!solved) {
+    l++;
     solved = true;
     for (let e of elements) {
       let vector = [0, 0];
@@ -70,17 +71,15 @@ let computePositions = () => {
       e.x += vector[0];
       e.y += vector[1];
     }
-  }
-  if (solved) {
-    positionElements();
-    console.log(l);
-  } else {
-    for (let e of elements) {
-      e.x = w/2-5 + 10*Math.random();
-      e.y = h/2-5 + 10*Math.random();
+    if (!solved && l > 20) {
+      for (let e of elements) {
+	e.x = w/2-5 + 10*Math.random();
+	e.y = h/2-5 + 10*Math.random();
+      }
+      l = 0;
     }
-    setTimeout(computePositions);
   }
+  positionElements();
 };
 
 
