@@ -26,8 +26,8 @@ let computePositions = () => {
   for (let e of elements) {
     e.s = [e.div.offsetWidth/2, e.div.offsetHeight/2];
   }
-  let solved = false;
-  for (let i=0; i<1000 && !solved; i++) {
+  let solved = false, l = 0;
+  for (; l<20 && !solved; l++) {
     solved = true;
     for (let e of elements) {
       let vector = [0, 0];
@@ -44,26 +44,26 @@ let computePositions = () => {
 	  rd[i] = Math.max(1, d[i] - e.s[i] - e2.s[i]);
 	}
 	let dist = Math.sqrt(rd[0]*rd[0] + rd[1]*rd[1]);
-	if (dist < 30) {
+	if (dist < 20) {
 	  solved = false;
 	  for (let i of [0,1]) {
 	    vector[i] += dir[i] * d[i] * elemRepulsion / dist;
 	  }
 	}
       }
-      if (e.x - e.s[0] < 50) {
+      if (e.x - e.s[0] < 40) {
 	solved = false;
 	vector[0] += wallRepulsion / (e.x - e.s[0] - 20);
       }
-      if (e.x + e.s[0] > w - 50) {
+      if (e.x + e.s[0] > w - 40) {
 	solved = false;
 	vector[0] -= wallRepulsion / (w - e.x - e.s[0] - 20);
       }
-      if (e.y - e.s[1] < 50) {
+      if (e.y - e.s[1] < 40) {
 	solved = false;
 	vector[1] += wallRepulsion / (e.y - e.s[1] - 20);
       }
-      if (e.y + e.s[1] > h - 50) {
+      if (e.y + e.s[1] > h - 40) {
 	solved = false;
 	vector[1] -= wallRepulsion / (h - e.y - e.s[1] - 20);
       }
@@ -73,6 +73,7 @@ let computePositions = () => {
   }
   if (solved) {
     positionElements();
+    console.log(l);
   } else {
     for (let e of elements) {
       e.x = w/2-5 + 10*Math.random();
