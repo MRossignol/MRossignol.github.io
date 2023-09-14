@@ -1,0 +1,45 @@
+
+* {
+    box-sizing: border-box;
+    vertical-align: top;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+div.mainPage {
+    font-size: 14px;
+    font-family: sans serif;
+    line-height: 1.5em;
+    background-color: #eee;
+    color: #333;
+    padding: 30px;
+}
+
+div.title {
+    font-size: large;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+textarea {
+    width: 1000px;
+    height: 600px;
+    margin: 20px;
+}
+
+table {
+    margin: 20px;
+    border-collapse: collapse;
+}
+
+tr.header {
+    background-color: #ccc;
+    white-space: nowrap;
+}
+
+td {
+    padding: 4px;
+}
