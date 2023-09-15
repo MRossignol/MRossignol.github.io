@@ -47,6 +47,12 @@ function makeLink (cls, content, href, extra) {
   return res;
 }
 
+function makeImage(cls, src) {
+  let img = new Image();
+  img.src = src;
+  return img;
+}
+
 
 if (!HTMLElement.prototype.addElem) {
   HTMLElement.prototype.addElem = function (tag, cls, content, extra) {
