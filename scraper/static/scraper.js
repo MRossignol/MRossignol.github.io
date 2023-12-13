@@ -7,10 +7,12 @@ class PageScraper {
 
   renderInput () {
     let testLinks = [
-      'https://www.naturabuy.fr/TOP-ENCHERE-Filet-camouflage-renforce-2-5m-Bleu-LIVRAISON-GRATUITE-item-7881405.html',
-      'https://www.naturabuy.fr/Sac-transport-fusils-90-cm-Noir-Multipoches-LIVRAISON-GRATUITE-ET-RAPIDE-item-8558850.html',
-      'https://www.naturabuy.fr/Rolan-Fleche-initiation-Carboloisir-900-diam-5-0--item-8130331.html',
-      'https://www.naturabuy.fr/Bonnet-Glock-Perfection-noir-item-9879884.html'
+      'https://www.naturabuy.fr/A-SAISIR-MALETTE-DE-NETTOYAGE-POUR-ARMES-62-PIECES-item-9917933.html',
+      'https://www.naturabuy.fr/PROMOTION-MALETTE-DE-NETTOYAGE-UNIVERSELLE-POUR-FUSILS-ET-ARMES-DE-POINGS-N1-item-9486431.html',
+      'https://www.naturabuy.fr/PROMO-NETTOYEUR-ULTRASONS-600-ML-30-W-QUALITe-PROFESSIONNEL-ET-EFFICACITe-ASSUReE-item-10836229.html',
+      'https://www.naturabuy.fr/PROMOTION-Kit-9-Pieces-Nettoyage-Armes--item-10406113.html',
+      'https://www.naturabuy.fr/PROMOTION-ROULEAU-DE-PATCHS-DE-NETTOYAGE-10-MeTRES-X-5-CM-EN-TISSU-COTON-N1-item-10794910.html',
+      'https://www.naturabuy.fr/PROMOTION-KIT-DE-NETTOYAGE-6-PIeCES-CORDE-DE-TRACTION-CALIBRE-30-item-10343630.html'
     ];
     document.body.replaceChildren(
       makeDiv('mainPage', [
@@ -49,7 +51,7 @@ class PageScraper {
   }
 
   makeTable () {
-    let headerFields = ['nom', 'description', 'prix', 'prix barré', 'catégorie'];
+    let headerFields = ['nom', 'description', 'prix', 'prix barré', 'prix livraison', 'mode livraison', 'catégorie', 'code catégorie'];
     for (let i=1; i <= this.maxNbPhotos; i++) {
       headerFields.push('photo '+i);
     }
@@ -66,17 +68,19 @@ class PageScraper {
   
   makeLine (itemData) {
     let cells = [
-      makeLink(null, itemData.name, itemData.url),
+      makeLink('name', itemData.name, itemData.url),
       makeDiv('description', itemData.description),
       itemData.prix,
       itemData.prixBarre || '',
-      itemData.category || '',
+      itemData.prixLivraison || '',
+      itemData.modeLivraison || '',
+      makeDiv('category', itemData.category || ''),
+      itemData.categoryCode || ''
     ];
-    let cellClasses = ['name', 'description', 'price', 'cancelPrice', 'category'];
+    let cellClasses = ['name', 'description', 'price', 'cancelPrice', 'deliveryPrice', 'deliveryMode', 'category', 'categoryCode'];
     for (let i=0; i<this.maxNbPhotos; i++) {
       let imgEntry = itemData.photos[i];
       if (imgEntry) {
-	console.log(imgEntry);
 	cells.push(makeLink(null, makeImage(null, imgEntry), imgEntry));
       } else {
 	cells.push('');
@@ -92,7 +96,7 @@ class PageScraper {
   }
 
   printError (message) {
-    this.mainPage.querySelector('div.error').addElem('p', null, message);
+    this.mainPage.querySelector('div.errors').addElem('p', null, message);
   }
   
   loadOneProduct () {
@@ -101,6 +105,7 @@ class PageScraper {
       this.doneLoading();
       return;
     }
+    const normalizePrice = p => 1*(p.trim().replace(',', '.').replace(/ *€/, ''));
     fetch('/load/'+btoa(url))
       .then( response => response.text())
       .then( (text) => {
@@ -129,15 +134,13 @@ class PageScraper {
 	} else {
 	  error += 'Impossible de trouver la description ';
 	}
-	
-	let photos = htmlDoc.body.querySelector('div#thumbs2');
-	if (photos) {
-	  photos = photos.innerHTML
-	    .split(/ +<a/)
-	    .filter(a=>a)
-	    .map(t => t.replace(/.*?\( */, '').replace(/\n/g, ' ').replace(/, *\d+ *\).*/, '').replace(/["']/g, '').split(/ *, */))
-	    .map(d => d[0].trim())
-	    .filter(x => x);
+	let photos = [];
+	let ph = htmlDoc.body.querySelector('div#thumbs2');
+	if (ph) {
+	  ph.querySelectorAll('img').forEach(a => {
+	    if (a.src)
+	      photos.push(a.src.replace('thumbs/60_', ''));
+	  });
 	  if (photos.length > this.maxNbPhotos) {
 	    mustRedoAll = true;
 	    this.maxNbPhotos = photos.length;
@@ -151,17 +154,36 @@ class PageScraper {
 	} else {
 	  category = null;
 	}
+	let catCode = '';
+	let breadcrumbs = htmlDoc.body.querySelector('div.page-breadcrumb');
+	if (breadcrumbs) {
+	  breadcrumbs.querySelectorAll('a').forEach(a => {
+	    let m = a.href.match(/cat\-(\d+)\.html/);
+	    if (m) catCode = m[1];
+	  });
+	}
 	let prix = htmlDoc.body.querySelector('div#priceContainer');
 	if (prix) {
-	  prix = prix.innerText.trim().replace(/ *€/, '');
+	  prix = normalizePrice(prix.innerText);
 	} else {
-	  error += 'Impossible de trouver le prix ';
+	  prix = htmlDoc.body.querySelector('div#bidboxprice');
+	  if (prix) {
+	    prix = normalizePrice(prix.innerText)
+	  } else {
+	    error += 'Impossible de trouver le prix ';
+	  }
 	}
 	let prixBarre = htmlDoc.body.querySelector('div#promoContainer');
 	if (prixBarre && prixBarre.innerText) {
-	  prixBarre = prixBarre.innerText.trim().replace(/ *€/, '');
+	  prixBarre = normalizePrice(prixBarre.innerText);
 	} else {
 	  prixBarre = null;
+	}
+	let prixLivraison = null, modeLivraison = null;
+	let livraison = htmlDoc.body.querySelector('div#shippingsContainer');
+	if (livraison) {
+	  [prixLivraison, modeLivraison] = livraison.innerText.replace(/^ *\n */, '').split(/ *[\-\n] */);
+	  prixLivraison = normalizePrice(prixLivraison);
 	}
 	let criteresDiv = htmlDoc.body.querySelector('div#criteresWithDesc');
 	let criteres = {};
@@ -190,8 +212,11 @@ class PageScraper {
 	    prix: prix,
 	    prixBarre: prixBarre,
 	    category: category,
+	    categoryCode: catCode,
 	    photos: photos,
-	    criteres: criteres
+	    criteres: criteres,
+	    prixLivraison: prixLivraison,
+	    modeLivraison: modeLivraison
 	  };
 	  this.entries.push(itemData);
 	  if (mustRedoAll) {
@@ -199,7 +224,7 @@ class PageScraper {
 	    this.mainPage.replaceChild(newDataTable, this.dataTable);
 	    this.dataTable = newDataTable;
 	  } else {
-	    this.dataTable.appendChild(makeLine(itemData));
+	    this.dataTable.appendChild(this.makeLine(itemData));
 	  }
 	}
 	this.nowLoading++;
@@ -214,7 +239,7 @@ class PageScraper {
   }
 
   makeCSV () {
-    let headerFields = ['url', 'nom', 'description', 'prix', 'prix barré', 'catégorie'];
+    let headerFields = ['url', 'nom', 'description', 'prix', 'prix barré', 'prix livraison', 'mode livraison', 'catégorie', 'code catégorie'];
     for (let i=1; i <= this.maxNbPhotos; i++) {
       headerFields.push('photo '+i);
     }
@@ -223,8 +248,8 @@ class PageScraper {
     }
     let rows = [ headerFields ];
     for (let e of this.entries) {
-      let row = [ e.url, e.name, e.description, e.prix, e.prixBarre || '', e.category || ''];
-      for (let i=1; i <= this.maxNbPhotos; i++) {
+      let row = [ e.url, e.name, e.description, e.prix, e.prixBarre || '', e.prixLivraison || '', e.modeLivraison || '', e.category || '', e.categoryCode || ''];
+      for (let i=0; i < this.maxNbPhotos; i++) {
 	row.push(e.photos[i] || '');
       }
       for (let c of this.criteria) {
@@ -233,13 +258,18 @@ class PageScraper {
       rows.push(row);
     }
     
-    let csvString = rows.map(r => r.map(v => '"'+v.replace(/;/g, ',').replace(/"/g, "''")+'"').join(';')).join('\n');
+    let csvString = rows.map(r => r.map(v => {
+      if (v.replace)
+	return '"'+v.replace(/;/g, ',').replace(/"/g, "''")+'"';
+      else
+	return `"${v}"`;
+    }).join(';')).join('\n');
     const link = document.createElement("a");
+    link.innerHTML = '&nbsp;Cliquer ici pour t&eacute;l&eacute;charger le fichier CSV';
     const file = new Blob([csvString], { type: 'text/plain' });
     link.href = URL.createObjectURL(file);
-    link.download ='';
-    link.click();
-    URL.revokeObjectURL(link.href);
+    link.download = 'produits_naturabuy.csv';
+    this.statusDiv.appendChild(link);
   }
 }
 
