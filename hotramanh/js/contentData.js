@@ -40,6 +40,9 @@
       title: 'Music',
       albumOutImage: 'img/covers/streetlights_alt_cover.jpg',
       albumOutText: 'Ho Tram Anh\'s first solo album, <i>The Poetry of Streetlights</i>, is out!',
+      newEpSection: 'New EP (2023)',
+      wetlandsEpText1: 'Wetlands',
+      wetlandsEpText2: 'December 20th, 2023',
       sections: [	
 	{
 	  title: 'Singles and EPs (to be updated)',

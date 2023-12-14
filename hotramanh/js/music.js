@@ -27,6 +27,19 @@
     p.innerHTML = content.albumOutText;
     a.appendChild(p);
     root.appendChild(a);
+    root.appendChild(setElemHTML(makeDiv('musicSectionTitle'), content.newEpSection));
+    a = document.createElement('a');
+    a.classList.add('release');
+    a.classList.add('newRelease');
+    let div = document.createElement('div');
+    img = document.createElement('img');
+    img.classList.add('releaseImage');
+    img.src = 'img/covers/wetlands.jpg';
+    div.appendChild(img);
+    div.appendChild(setElemHTML(makeDiv('releaseTitle'), content.wetlandsEpText1));
+    div.appendChild(setElemHTML(makeDiv('releaseSubtitle'), content.wetlandsEpText2));
+    a.appendChild(div);
+    root.appendChild(a);
     content.sections.forEach((s) => {
       root.appendChild(setElemHTML(makeDiv('musicSectionTitle'), s.title));
       s.releases.forEach((r) => {

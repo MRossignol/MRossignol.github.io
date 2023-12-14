@@ -198,7 +198,6 @@ div.content.music img.albumCover {
 div.content.music p.albumText {
 }
 
-
 div.content.music a.release {
     display: block;
     width: 100%;
@@ -208,13 +207,20 @@ div.content.music a.release {
     height: 100px;
 }
 
+div.content.music a.release.newRelease {
+    height: 240px;
+    padding-left: 300px;
+}
+
 body.mobile div.content.music a.release {
-    display: block;
-    width: 100%;
-    position: relative;
     padding-left: 124px;
     margin-bottom: 20px;
     height: 80px;
+}
+
+body.mobile div.content.music a.release.newRelease {
+    height: 160px;
+    padding-left: 200px;
 }
 
 div.content.music img.releaseImage {
@@ -222,15 +228,36 @@ div.content.music img.releaseImage {
     top: 0px;
     left: 40px;
     width: 100px;
+    height: 100px;
+}
+
+div.content.music a.newRelease img.releaseImage {
+    width: 240px;
+    height: 240px;
 }
 
 body.mobile div.content.music img.releaseImage {
     left: 20px;
     width: 80px;
+    height: 80px;
+}
+
+body.mobile div.content.music a.newRelease img.releaseImage {
+    width: 160px;
+    height: 160px;
 }
 
 div.content.music div.releaseTitle {
     padding-top: 10px;
+}
+
+div.content.music a.newRelease div.releaseTitle {
+    padding-top: 80px;
+}
+
+body.mobile div.content.music a.newRelease div.releaseTitle {
+    padding-top: 40px;
+
 }
 
 div.content.music div.releaseSubtitle {
