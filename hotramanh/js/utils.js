@@ -13,6 +13,14 @@ function makeDiv() {
   return res;
 }
 
+function makeImg() {
+  let img = document.createElement('img');
+  img.src = arguments[0];
+  for (let i=1; i<arguments.length; i++)
+    img.classList.add(arguments[i]);
+  return img;
+}
+
 function setElemHTML (div, html) {
   div.innerHTML = html;
   return div;

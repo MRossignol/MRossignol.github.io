@@ -4,6 +4,8 @@
 
   let formats = ['opus', 'm4a'];
 
+  let loadedRelease = null;
+
   let nowPlaying = null;
   let nextPlaying = null;
   let players = [];
@@ -12,12 +14,12 @@
   let preparing = false;
 
   let coversArray = [
-    { src: 'img/mediaSessionCover/cover_96.png',  sizes: '96x96',   type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_128.png', sizes: '128x128', type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_192.png', sizes: '192x192', type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_256.png', sizes: '256x256', type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_384.png', sizes: '384x384', type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_512.png', sizes: '512x512', type: 'image/png' },
+    { src: 'img/mediaSessionCover/streetlights_96.png',  sizes: '96x96',   type: 'image/png' },
+    { src: 'img/mediaSessionCover/streetlights_128.png', sizes: '128x128', type: 'image/png' },
+    { src: 'img/mediaSessionCover/streetlights_192.png', sizes: '192x192', type: 'image/png' },
+    { src: 'img/mediaSessionCover/streetlights_256.png', sizes: '256x256', type: 'image/png' },
+    { src: 'img/mediaSessionCover/streetlights_384.png', sizes: '384x384', type: 'image/png' },
+    { src: 'img/mediaSessionCover/streetlights_512.png', sizes: '512x512', type: 'image/png' },
   ];
 
   let playerWidget = null;
@@ -295,11 +297,26 @@
     }
   };
 
-  var preparePlayer = () => {
-    if (preparing || ready) return;
+  var preparePlayer = (key) => {
+    if (preparing || loadedRelease && key == loadedRelease.key) return;
     preparing = true;
 
+    let existing = document.querySelector('div.audioHolder');
+    if (existing) {
+      document.body.removeChild(existing);
+    }
+
     let holder = makeDiv('audioHolder');
+    loadedRelease = hta.contentData[key];
+    loadedRelease.key = key;
+    loadedRelease.coversArray = [];
+    for (let s of [96, 128, 192, 256, 384, 512]) {
+      loadedRelease.coversArray.push({
+	src: `img/mediaSessionCover/${key}_${s}.png`,
+	sizes: `${s}x${s}`,
+	type: 'image/png'
+      });
+    }
 
     hta.contentData.streetlights.tracks.forEach((t, i) => {
       if (t.audio) {
@@ -354,3 +371,5 @@
   };
   
 }) ();
+
+

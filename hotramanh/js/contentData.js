@@ -65,39 +65,59 @@
 	},
       ]
     },
-    
-    streetlights: {
-      windowTitle: 'The Poetry of Streetlights',
-      title: 'The Poetry Of Streetlights',
-      tracks: [
-	{title: 'Haze', audio:'01_Haze'},
-	{title: 'Mansloughing (feat. Ngầm)', audio:'02_Mansloughing'},
-	{title: 'Feel The Flow', audio:'03_Feel_The_Flow'},
-	{title: 'Discreet Dreamers', audio:'04_Discreet_Dreamers'},
-	{title: 'Radio Ecstatic', audio:'05_Radio_Ecstatic'},
-	{title: 'Minefield', audio:'06_Minefield'},
-	{title: 'Along The Lines', audio:'07_Along_The_Lines'},
-	{title: 'Marbles (feat. Ngầm)', audio:'08_Marbles'},
-	{title: 'Nightingale', audio:'09_Nightingale'},
-	{title: 'Ocean Waves', audio:'10_Ocean_Waves'},
-	{title: 'Coda (Lawrence\'s Lullaby)', audio:'11_Coda_(Lawrence_s_Lullaby)'}
-      ],
 
-      credits: [
-	['Ho Tram Anh', 'producing, songwriting, arrangement, piano, keyboards, synthesizers, electronic drums, bass (track 1, 3, 7), vocals'],
-	['Đờ Tùng', 'co-producing, engineering, mixing, synthesizers, guitars (track 9, 10), sound effects'],
-	['Cao Lê Hoàng', 'drums, percussions, electronic drums'],
-	['Lưu Thanh Duy', 'guitars (track 1, 3, 7)'],
-	['Đỗ Nguyễn Hoàng Vũ',  'guitars (track 2, 4, 8)'],
-	['Doãn Hoài Nam', 'guitars, bass (track 5)'],
-	['Phạm Hải Đăng', 'Harmonica (track 5)'],
-	['Marilyn Dacusin Phạm', 'Backing vocals (track 1, 3)'],
-	['Lawrence', 'Spoken words (track 11)'],
-	['AJ Tissian', 'mastering'],
-	['Artworks by', 'Hima'],
-	['Website by', 'Mathias Rossignol'],
-	['CD production by', 'LP Club']
-      ]
+    releases : {
+      streetlights: {
+	key: 'streetlights',
+	windowTitle: 'The Poetry of Streetlights',
+	title: 'The Poetry Of Streetlights',
+	tracks: [
+	  {title: 'Haze', audio:'01_Haze'},
+	  {title: 'Mansloughing (feat. Ngầm)', audio:'02_Mansloughing'},
+	  {title: 'Feel The Flow', audio:'03_Feel_The_Flow'},
+	  {title: 'Discreet Dreamers', audio:'04_Discreet_Dreamers'},
+	  {title: 'Radio Ecstatic', audio:'05_Radio_Ecstatic'},
+	  {title: 'Minefield', audio:'06_Minefield'},
+	  {title: 'Along The Lines', audio:'07_Along_The_Lines'},
+	  {title: 'Marbles (feat. Ngầm)', audio:'08_Marbles'},
+	  {title: 'Nightingale', audio:'09_Nightingale'},
+	  {title: 'Ocean Waves', audio:'10_Ocean_Waves'},
+	  {title: 'Coda (Lawrence\'s Lullaby)', audio:'11_Coda_(Lawrence_s_Lullaby)'}
+	],
+
+	credits: [
+	  ['Ho Tram Anh', 'producing, songwriting, arrangement, piano, keyboards, synthesizers, electronic drums, bass (track 1, 3, 7), vocals'],
+	  ['Đờ Tùng', 'co-producing, engineering, mixing, synthesizers, guitars (track 9, 10), sound effects'],
+	  ['Cao Lê Hoàng', 'drums, percussions, electronic drums'],
+	  ['Lưu Thanh Duy', 'guitars (track 1, 3, 7)'],
+	  ['Đỗ Nguyễn Hoàng Vũ',  'guitars (track 2, 4, 8)'],
+	  ['Doãn Hoài Nam', 'guitars, bass (track 5)'],
+	  ['Phạm Hải Đăng', 'Harmonica (track 5)'],
+	  ['Marilyn Dacusin Phạm', 'Backing vocals (track 1, 3)'],
+	  ['Lawrence', 'Spoken words (track 11)'],
+	  ['AJ Tissian', 'mastering'],
+	  ['Artworks by', 'Hima'],
+	  ['Website by', 'Mathias Rossignol'],
+	  ['CD production by', 'LP Club']
+	]
+      },
+      wetlands: {
+	key: 'wetlands',
+	windowTitle: 'Wetlands',
+	title: 'Wetlands',
+	tracks: [
+	  {title: 'Wetlands', audio:'01_Wetlands'},
+	  {title: 'Ripple Silhouettes', audio:'02_Ripple_Silhouettes'},
+	  {title: 'Exile', audio:'03_Exile'},
+	  {title: 'How We Were', audio:'04_How_We_Were'},
+	  {title: 'Out Of My Head', audio:'05_Out_Of_My_Head'}
+	],
+
+	credits: [
+	  ['Ho Tram Anh', 'producing, songwriting, arrangement, synthesizers, electronic drums, vocals'],
+	  ['Đờ Tùng', 'mastering']
+	]
+      }
     },
     
     'poetry-of-streetlights': {
