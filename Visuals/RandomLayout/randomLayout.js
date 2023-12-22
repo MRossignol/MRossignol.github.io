@@ -17,8 +17,9 @@ let positionElements = () => {
   }
 };
 
-let elemRepulsion = 1;
-let wallRepulsion = 100;
+const elemRepulsion = 1;
+const spacing = 20;
+const margin = 40;
 
 let computePositions = () => {
   let w = window.innerWidth, h = window.innerHeight;
@@ -45,31 +46,31 @@ let computePositions = () => {
 	  rd[i] = Math.max(1, d[i] - e.s[i] - e2.s[i]);
 	}
 	let dist = Math.sqrt(rd[0]*rd[0] + rd[1]*rd[1]);
-	if (dist < 20) {
+	if (dist < spacing) {
 	  solved = false;
 	  for (let i of [0,1]) {
 	    vector[i] += dir[i] * d[i] * elemRepulsion / dist;
 	  }
 	}
       }
-      if (e.x - e.s[0] < 40) {
-	solved = false;
-	vector[0] += wallRepulsion / (e.x - e.s[0] - 20);
-      }
-      if (e.x + e.s[0] > w - 40) {
-	solved = false;
-	vector[0] -= wallRepulsion / (w - e.x - e.s[0] - 20);
-      }
-      if (e.y - e.s[1] < 40) {
-	solved = false;
-	vector[1] += wallRepulsion / (e.y - e.s[1] - 20);
-      }
-      if (e.y + e.s[1] > h - 40) {
-	solved = false;
-	vector[1] -= wallRepulsion / (h - e.y - e.s[1] - 20);
-      }
       e.x += vector[0];
       e.y += vector[1];
+      if (e.x - e.s[0] < margin) {
+	solved = false;
+	e.x = e.s[0] + margin;
+      }
+      if (e.x + e.s[0] > w - margin) {
+	solved = false;
+	e.x = w - margin - e.s[0];
+      }
+      if (e.y - e.s[1] < margin) {
+	solved = false;
+	e.y = e.s[1] + margin;
+      }
+      if (e.y + e.s[1] > h - margin) {
+	solved = false;
+	e.y = h - margin - e.s[1];
+      }
     }
     if (!solved && l > 20) {
       for (let e of elements) {

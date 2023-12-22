@@ -81,6 +81,7 @@ class BackgroundBase {
   instantDestroy() {
     try {
       this.app.stop();
+      this.app.destroy(true, true);
       document.body.removeChild(this.app.view);
     } catch (e) {}
   }
@@ -88,12 +89,9 @@ class BackgroundBase {
 
   remove () {
     this.app.view.addEventListener('transitionend', () => {
-      try {
-	this.app.stop();
-	document.body.removeChild(this.app.view);
-      } catch (e) {}
+      this.instantDestroy();
     });
-    this.app.view.style.transition = 'all 1s';
+    this.app.view.style.transition = 'opacity 1s';
     this.app.view.style.opacity = 0;
   }
 
