@@ -2,7 +2,7 @@
 
   let hta = getHTA();
 
-  let images = ['01.jpg', '02.jpg', '04.jpg', '03.jpg', '06.jpg', '05.jpg', '07.jpg', '08.jpg', '10.jpg', '11.jpg', '12.jpg', '09.jpg'];
+  let images = ['01.jpg', '02.jpg', '04.jpg', '03.jpg', '06.jpg', '05.jpg', '07.jpg', '08.jpg', '10.jpg', '11.jpg', '13.jpg', '14.jpg', '12.jpg', '09.jpg'];
   let thumbnailHolders = images.map(() => null);
   let thumbnailImages = images.map(() => null);
   let hdLoaded = [];
@@ -187,6 +187,7 @@
     document.body.appendChild(background);
     let fullImage = new Image();
     fullImage.classList.add('carouselImage');
+    fullImage.alt = 'Photo #'+(pos+1)+' of Ho Tram Anh';
     fullImage.src = hdLoaded[pos] ? 'gallery/'+images[pos] : 'gallery/thumbs/'+images[pos];
     let coords = img.getBoundingClientRect();
     ['width', 'height', 'top', 'left'].forEach((dim) => {
@@ -226,44 +227,40 @@
       holderSize = Math.round(window.innerWidth/2-16);
     }
     let targetArea = 2*holderSize*holderSize/3;
-    let root = document.createElement('div');
-    base.appendChild(root);
-    root.appendChild(setElemHTML(makeDiv('pageTitle'), 'Media'));
-    let thumbnails = makeDiv('thumbnailsArea');
-    images.forEach((img, pos) => {
-      let holder = makeDiv('galleryThumbnailHolder');
-      thumbnails.appendChild(holder);
-      thumbnailHolders[pos] = holder;
-      holder.style.width = holderSize+'px';
-      holder.style.height = holderSize+'px';
-      let url = 'gallery/thumbs/'+img;
-      let image = new Image();
-      image.id = 'thumbnail-'+pos;
-      image.onload = () => {
-	let w = image.naturalWidth;
-	let h = image.naturalHeight;
-	let area = w*h;
-	let scale = Math.sqrt(targetArea/area);
-	w = Math.round(w*scale);
-	h = Math.round(h*scale);
-	image.style.width = w+'px';
-	image.style.height = h+'px';
-	image.style.left = Math.round((holderSize-w)/2)+'px';
-	image.style.top = Math.round((holderSize-h)/2)+'px';
-	image.addEventListener('click', (event) => {
-	  zoomInImage(pos);
-	});
-	holder.appendChild(image);
-	thumbnailImages[pos] = image;
-	hdLoaded.push(false);
-      };
-      image.src = url;
-    });
-    let hr = document.createElement('hr');
-    hr.style.visibility='hidden';
-    hr.style.clear='both';
-    thumbnails.appendChild(hr);
-    root.append(thumbnails);
+    base.addDiv(null, [
+      makeDiv('pageTitle', 'Media'),
+      makeDiv('thumbnailsArea', [
+	...images.map((img, pos) => makeDiv('galleryThumbnailHolder',
+					    makeImage(null,
+						      'gallery/thumbs/'+img,
+						      'Thumbail for photo #'+(pos+1)+' of Ho Tram Anh',
+						      (img) => {
+							img.id = 'thumbnail-'+pos;
+							img.onload = () => {
+							  let w = img.naturalWidth;
+							  let h = img.naturalHeight;
+							  let area = w*h;
+							  let scale = Math.sqrt(targetArea/area);
+							  w = Math.round(w*scale);
+							  h = Math.round(h*scale);
+							  img.style.width = w+'px';
+							  img.style.height = h+'px';
+							  img.style.left = Math.round((holderSize-w)/2)+'px';
+							  img.style.top = Math.round((holderSize-h)/2)+'px';
+							  img.addEventListener('click', (event) => {
+							    zoomInImage(pos);
+							  });
+							  thumbnailImages[pos] = img;
+							  hdLoaded.push(false);
+							};
+						      }), (e) => {
+							e.style.width = holderSize+'px';
+							e.style.height = holderSize+'px';
+							thumbnailHolders[pos] = e;
+						      })),
+	makeElem('hr', 'clear')
+      ])
+    ]);
   };
   
   let updateThumbnailSize = () => {

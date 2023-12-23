@@ -22,15 +22,15 @@ h1 {
 }
 
 div.tumblr_title {
-    margin-top: 24px;
+    padding-top: 24px;
     font-weight: 600;
+    border-top: 1px solid #444;
 }
 
 div.tumblr_body {
     margin-top: 24px;
     padding-bottom: 24px;
     padding-left: 16px;
-    border-bottom: 1px solid #444;
     font-size: 16px;
 }
 
@@ -41,4 +41,12 @@ ol {
 
 ol > li {
     list-style-type: none;
+}
+
+div.npf_row {
+    text-align: center;
+}
+
+img.newsImage {
+    max-width: 100%;
 }

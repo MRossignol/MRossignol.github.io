@@ -148,6 +148,9 @@
   };
 
   let active = false;
+
+  let updateInterval = null;
+  let initTime = 0;
   
   let updateBackgroundPositions = () => {
     if (!active) return;
@@ -159,17 +162,28 @@
 	  let nextC = md.c*md.dc-md.s*md.ds;
 	  let nextS = md.c*md.ds+md.s*md.dc;
 	  if ((nextS-md.s)*(md.s-md.lastS) < 0) {
-	    let nbSteps = Math.round(200 + 300*Math.random());
-	    let angle = 3.14159/nbSteps;
-	    md.dc = Math.cos(angle);
-	    md.ds = Math.sin(angle);
-	    if (nextS > md.s) {
-	      md.maxVal = 5+(maxTranslate-5)*Math.random();
+	    if (Date.now() - initTime > 100000) {
+	      nextC = md.c;
+	      nextS  = md.s;
+	      md.dc = 1;
+	      md.ds = 0;
+	      if (updateInterval && movData.ld.x.ds==0 && movData.ld.y.ds==0 && movData.hd.x.ds==0 && movData.hd.y.ds==0) {
+		clearInterval(updateInterval);
+		updateInterval = null;
+	      }
 	    } else {
-	      md.minVal = -5-(maxTranslate-5)*Math.random();
+	      let nbSteps = Math.round(200 + 300*Math.random());
+	      let angle = 3.14159/nbSteps;
+	      md.dc = Math.cos(angle);
+	      md.ds = Math.sin(angle);
+	      if (nextS > md.s) {
+		md.maxVal = 5+(maxTranslate-5)*Math.random();
+	      } else {
+		md.minVal = -5-(maxTranslate-5)*Math.random();
+	      }
+	      nextC = md.c*md.dc-md.s*md.ds;
+	      nextS = md.c*md.ds+md.s*md.dc;
 	    }
-	    nextC = md.c*md.dc-md.s*md.ds;
-	    nextS = md.c*md.ds+md.s*md.dc;
 	  }
 	  md.c = nextC;
 	  md.lastS = md.s;
@@ -209,7 +223,8 @@
     backgrounds.album = makeDiv('albumBackground');
     document.body.appendChild(backgrounds.album);
     created = true;
-    setInterval(updateBackgroundPositions, 50);
+    initTime = Date.now();
+    updateInterval = setInterval(updateBackgroundPositions, 50);
   };
 
   

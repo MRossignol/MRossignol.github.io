@@ -46,13 +46,13 @@
     if (zoom) {
       document.body.classList.remove('wideContent');
       if (hta.layout.orientation() == 'desktop')
-	document.getElementsByClassName('content')[0].style.height = 'auto';
+	document.querySelector('div.content').style.height = 'auto';
     } else {
       document.body.classList.add('wideContent');
       if (hta.layout.orientation() == 'desktop') {
 	setTimeout(() => {
 	  let contentHeight = Math.round(letterImg.getBoundingClientRect().height+40);
-	  document.getElementsByClassName('content')[0].style.height = contentHeight+'px';
+	  document.querySelector('div.content').style.height = contentHeight+'px';
 	}, 300);
       }
     }
@@ -63,26 +63,25 @@
     contentDiv = root;
     let buttonHolder = makeDiv('buttonHolder');
     let zoomButton = makeDiv('zoomButton');
+    zoomButton.title = 'Toggle zoom on letter image';
+    zoomButton.ariaLabel = 'Toggle zoom on letter image';
     zoomButton.addEventListener('click', toggleZoom);
     let toggleButton = makeDiv('toggleButton');
+    toggleButton.title = 'Toggle between image and text versions of the letter';
+    toggleButton.ariaLabel = 'Toggle between image and text versions of the letter';
     toggleButton.addEventListener('click', toggleType);
     buttonHolder.appendChild(zoomButton);
     buttonHolder.appendChild(toggleButton);
     root.appendChild(buttonHolder);
-    let letterWait = makeDiv('letterWait');
+    let letterWait = makeDiv('letterWait', 'One moment, please…');
     letterWait.id = 'letterWait';
-    letterWait.innerHTML = 'One moment, please…';
     root.appendChild(letterWait);
     letterImg.id = 'letter';
     letterImg.src = 'img/letter-black-sm-white.png';
+    letterImg.alt = 'Letter from Ho Tram Anh';
     root.appendChild(letterImg);
-    let letterText = makeDiv('letterText');
+    let letterText = makeDiv('letterText', hta.contentData.letter.paragraphs.map(pContent => makeElem('p', null, pContent)));
     letterText.id = 'letterText';
-    hta.contentData.letter.paragraphs.forEach((pContent) => {
-      let p = document.createElement('p');
-      p.innerHTML = pContent;
-      letterText.appendChild(p);
-    });
     root.appendChild(letterText);
   }
 

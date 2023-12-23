@@ -1,4 +1,28 @@
 
+body.desktop div.content p {
+    margin-left: 60px;
+    margin-right: 60px;
+    text-align: justify;
+}
+
+body.mobile div.content p {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+hr {
+    margin: 50px;
+    width: 50%;
+    margin-left: 25%;
+    border: none;
+    border-top: 1px solid #666;
+}
+
+hr.clear {
+    clear: both;
+    visibility: hidden
+}
+
 /********/
 /* LOGO */
 /********/
@@ -60,6 +84,7 @@ body.desktop div.content > div.buttonHolder {
 
 body.mobile div.content > div.buttonHolder {
     width: 100%;
+    padding: 0px;
     margin-top: calc(calc(50vh - 69vw) - 54px);
 }
 
@@ -79,7 +104,7 @@ body.mobile.wideContent img#letter {
     height: 283vw;
     margin: 0px;
     padding: 0px;
-    margin-top: calc(calc(50% - 70vw) - 26px);
+    margin-top: 0px; /* calc(calc(50% - 70vw) - 26px); */
 }
 
 body.mobile.playerVisible div.content > div.buttonHolder {
@@ -91,12 +116,12 @@ body.mobile div.content.main.text div.buttonHolder {
     margin-top: 16px;
 }
 
-body.mobile.wideContent div.buttonHolder {
+body.mobile.wideContent div.content > div.buttonHolder {
     width: 198vw;
     margin: 0px;
 }
 
-body.desktop.wideContent div.buttonHolder {
+body.desktop.wideContent div.content > div.buttonHolder {
     width: 100%;
 }
 
@@ -199,6 +224,11 @@ div.content.music p.albumText {
 }
 
 
+div.content.music a.release.newRelease {
+    height: 240px;
+    padding-left: 300px;
+}
+
 div.content.music a.release {
     display: block;
     width: 100%;
@@ -217,6 +247,11 @@ body.mobile div.content.music a.release {
     height: 80px;
 }
 
+body.mobile div.content.music a.release.newRelease {
+    height: 160px;
+    padding-left: 200px;
+}
+
 div.content.music img.releaseImage {
     position: absolute;
     top: 0px;
@@ -224,13 +259,32 @@ div.content.music img.releaseImage {
     width: 100px;
 }
 
+div.content.music a.newRelease img.releaseImage {
+    width: 240px;
+    height: 240px;
+}
+
 body.mobile div.content.music img.releaseImage {
     left: 20px;
     width: 80px;
 }
 
+body.mobile div.content.music a.newRelease img.releaseImage {
+    width: 160px;
+    height: 160px;
+}
+
 div.content.music div.releaseTitle {
     padding-top: 10px;
+}
+
+div.content.music a.newRelease div.releaseTitle {
+    padding-top: 80px;
+}
+
+body.mobile div.content.music a.newRelease div.releaseTitle {
+    padding-top: 40px;
+
 }
 
 div.content.music div.releaseSubtitle {
@@ -322,19 +376,28 @@ body.desktop div.content.about > div {
     background-color: rgba(0, 0, 0, .4);
 }
 
-body.desktop div.content.about p {
-    margin-left: 60px;
-    margin-right: 30px;
-}
-
 body.mobile div.content.about > div {
     background-color: rgba(0, 0, 0, .2);
 }
 
-body.mobile div.content.about p {
-    margin-left: 10px;
-    margin-right: 10px;
+/********/
+/*  EP  */
+/********/
+
+div.content.wetlands > div {
+    background-color: rgba(0, 0, 0, .4);
 }
+
+div.content.wetlands {
+    text-shadow: none;
+    margin-bottom: 40px;
+}
+
+
+div.content.wetlands div.albumTrack {
+    background-color: rgba(255, 255, 255, .2);
+}
+
 
 /*********/
 /* ALBUM */
@@ -350,9 +413,18 @@ div.content.poetry-of-streetlights * {
     color: #334;
 }
 
+img.albumTitle {
+    width: 75%;
+}
+
 div.content.poetry-of-streetlights div.pageTitle {
     text-shadow: none;
     margin-bottom: 40px;
+}
+
+div.albumTitleHolder {
+    text-align: center;
+    margin-bottom: 15px;
 }
 
 div.albumCoverHolder {
@@ -378,7 +450,7 @@ div.albumTrack {
     white-space: nowrap;
 }
 
-mobile div.albumTrack {
+body.mobile div.albumTrack {
     width: 90%;
 }
 
@@ -414,7 +486,7 @@ div.trackTitle {
     display: inline-block;
 }
 
-div.albumCredits {
+div.albumCredits, div.donationTitle {
     color: #ccc;
     text-align: left;
     margin: 50px 20px 20px 20px;
@@ -422,30 +494,165 @@ div.albumCredits {
     font-weight: 600;
 }
 
+body.desktop div.donationTitle, body.desktop div.albumCredits {
+    margin-left: 60px;
+}
+
 div.creditsLine {
     color: #ccc;
     text-align: left;
-    margin: 0px 20px 12px 32px;
+    margin: 0px 20px 12px 20px;
+    font-size: 18px;
+}
+
+body.desktop div.creditsLine {
+    margin-left: 60px;
+    margin-right: 60px;
+}
+
+.creditName {
+    font-weight: 600;
+}
+
+div.emailForm {
+    text-align: center;
+}
+
+div.emailForm input[type="text"] {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+    margin-bottom: 12px;
+}
+
+div.emailForm input[type="button"] {
+    padding: 8px 20px 8px 20px;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+    background-color: white;
     font-size: 16px;
 }
 
-span.creditName {
+div.emailForm input[type="button"]:disabled {
+    opacity: 0.5;
+}
+
+div.formLabel {
+    display: inline-block;
+    width: 114px;
+}
+
+div.donationMethods {
+    position: relative;
+    opacity: 0.3;
+}
+
+div.dmHide {
+    z-index: 1;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+div.methodChoiceTitle {
+    color: #ccc;
+    text-align: left;
+    margin: 30px 20px 20px 20px;
+    font-size: 20px;
     font-weight: 600;
+}
+
+body.desktop div.methodChoiceTitle {
+    margin-left: 60px;
+}
+
+div.methodTitle {
+    font-weight: 600;
+    color: #ccc;
+    text-align: left;
+    margin: 30px 20px 20px 20px;
+}
+
+body.desktop div.methodTitle {
+    margin-left: 60px;
+}
+
+div.methodDiv {
+    text-align: center;
+}
+
+iframe.paypalFrame {
+    border: none;
+    width: 350px;
+    height: 240px;
+}
+
+table.bankDetails {
+    display: inline-block;
+    font-size: 20px;
+}
+
+table.bankDetails td {
+    padding-right: 14px;
+}
+
+body.mobile div.content.poetry-of-streetlights p {
+    margin-left: 20px;
+    font-size: 18px;
 }
 
 /********/
 /* NEWS */
 /********/
 
-body.desktop div.content.news > div {
+div.content.news > div {
     background-color: rgba(0, 0, 0, .4);
+    min-height: 100%;
+}
+
+body.desktop div.content.news > div {
     padding-left: 30px;
     padding-right: 30px;
-    min-height: 100%;
+}
+
+body.mobile div.content.news > div {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 div.content.news iframe {
     width: 100%;
     height: auto;
     border: none;
+}
+
+/**************/
+/* SOCIAL BOX */
+/**************/
+
+div.socialBox {
+    text-align: center;
+    margin: 20px;
+}
+
+div.sbLinks {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+}
+
+div.sbFlex {
+    flex: 1;
+}
+
+div.sbSpace {
+    flex: 0 32px;
+}
+
+div.socialBox img {
+    width: 48px;
+    height: 48px;
+    filter: contrast(80%);
 }

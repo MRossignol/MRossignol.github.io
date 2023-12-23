@@ -29,6 +29,13 @@
       Array.from(el.getElementsByTagName('a')).forEach((link) => {
 	link.target='_blank';
       });
+      Array.from(el.getElementsByTagName('figure')).forEach((figure) => {
+	let image = figure.getElementsByTagName('img')[0];
+	if (image) {
+	  image.classList.add('newsImage');
+	  figure.parentElement.replaceChild(image, figure);
+	}
+      });
       let h = el.innerHTML.replace(/^.*<body>/, '').replace(/<\/body>.*$/, '');
       document.oldWrite(h);
       

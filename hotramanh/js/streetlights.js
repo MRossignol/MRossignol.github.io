@@ -2,53 +2,50 @@
 
   let hta = getHTA();
 
-  let content = hta.contentData.streetlights;
+  let content = hta.contentData.releases.streetlights;
   
   let buildPage = (root) => {
-    let container = document.createElement('div');
-    root.appendChild(container);
-    container.appendChild(setElemHTML(makeDiv('pageTitle'), content.title));
-    container.appendChild(setElemHTML(makeDiv('albumCoverHolder'), '<img class="albumCover" src="img/covers/streetlights_cover.jpg" />'));
-    content.tracks.forEach((t,i) => {
-      let track = makeDiv('albumTrack', hta.player.trackStatus(i));
-      track.id = 'albumTrack-'+i;
-      track.appendChild(setElemHTML(makeDiv('trackNumber'), i+1));
-      track.appendChild(setElemHTML(makeDiv('trackTitle'), t.title));
-      let playImg = document.createElement('img');
-      playImg.classList.add('trackStatus');
-      playImg.classList.add('pause');
-      playImg.src = 'img/icons/play.svg';
-      track.appendChild(playImg);
-      let pauseImg = document.createElement('img');
-      pauseImg.classList.add('trackStatus');
-      pauseImg.classList.add('playing');
-      pauseImg.src = 'img/icons/pause.svg';
-      track.appendChild(pauseImg);
-      let transImg = document.createElement('img');
-      transImg.classList.add('trackStatus');
-      transImg.classList.add('transition');
-      transImg.src = 'img/icons/transition_anim.svg';
-      track.appendChild(transImg);
-      container.appendChild(track);
-    });
-    container.appendChild(setElemHTML(makeDiv('albumCredits'), 'Credits'));
-    content.credits.forEach((c,i) => {
-      if (c[0].indexOf('by') != -1) {
-	container.appendChild(setElemHTML(makeDiv('creditsLine'), c[0]+' <span class="creditName">'+c[1]+'</span>'));
-      } else {
-	container.appendChild(setElemHTML(makeDiv('creditsLine'), '<span class="creditName">'+c[0]+'</span>: '+c[1]+'</div>'));
-      }
-    });
+    let donation = new Donation('album');
+    root.addDiv(null, [
+      makeDiv('albumTitleHolder', makeImage('albumTitle', 'img/streetlights_title_dark.png', 'The Poetry of Streetlights')),
+      makeDiv('albumCoverHolder', makeImage('albumCover', 'img/covers/streetlights_cover.jpg', 'Album cover for The Poetry of Streetlights')),
+      ...content.insertText.map(pHtml => makeElem('p', null, pHtml)),
+      ...content.tracks.map((t,i) => 
+	makeDiv(['albumTrack', hta.player.trackStatus(`streetlights/${i}`)], [
+	  makeDiv('trackNumber', i+1),
+	  makeDiv('trackTitle', t.title),
+	  makeImage(['trackStatus', 'pause'], 'img/icons/play.svg', 'Play'),
+	  makeImage(['trackStatus', 'playing'], 'img/icons/pause.svg', 'Pause'),
+	  makeImage(['trackStatus', 'transition'], 'img/icons/transition_anim.svg', 'Wait')
+	], (e) => {
+	  e.id = 'albumTrack-'+i;
+	  e.addEventListener('click', () => {
+	    hta.player.play(`streetlights/${i}`);
+	  });
+	})),  
+      makeDiv('albumCredits', 'Credits'),
+      ...content.credits.map((c,i) => {
+	let cto = c[2] && c[2].length ? 'a target="_blank"' : 'span';
+	let ctc = c[2] && c[2].length ? 'a' : 'span';
+	return (c[0].endsWith(':')) ?
+	  makeDiv('creditsLine', `${c[0]} <${cto} class="creditName" href="${c[2]}">${c[1]}</${ctc}>`) :
+	  makeDiv('creditsLine', `<${cto} class="creditName" href="${c[2]}">${c[0]}</${ctc}>: ${c[1]}`);
+      }),
+      makeElem('hr'),
+      ...donation.divs
+    ]);
   };
 
-  hta.player.onTrackStatusChange((trackNum, status) => {
+  let updateTrackStatus = (key, trackNum, status) => {
+    if (key != 'streetlights') return;
     let elem = document.getElementById('albumTrack-'+trackNum);
     if (!elem) return;
+    if (status=='ended') status = 'pause';
     ['playing', 'pause', 'transition'].forEach((s) => {
       if (s==status) elem.classList.add(s);
       else elem.classList.remove(s);
     });
-  });
+  };
   
   hta.navigation.registerSection({
 
@@ -57,7 +54,7 @@
     init: () => {},
 
     preload: () => {
-      hta.player.prepare();
+      hta.player.prepare('streetlights');
     },
 
     getContent: (root) => new Promise((resolve, reject) => {
@@ -70,17 +67,12 @@
     onResize: () => {},
 
     onAppearing: () => {
-      console.log('layout');
-      content.tracks.forEach((t,i) => {
-	let trackDiv = document.getElementById('albumTrack-'+i);
-	console.log(trackDiv);
-	if (trackDiv) trackDiv.addEventListener('click', () => {
-	  hta.player.play(i);
-	});
-      });
+      hta.player.trackStatusChange(updateTrackStatus);
     },
 
-    onDisappearing: () => {},
+    onDisappearing: () => {
+      hta.player.stopTrackingStatusChange(updateTrackStatus);
+    },
 
     cleanup: () => {}
     

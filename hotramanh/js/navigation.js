@@ -16,8 +16,6 @@
   function registerSectionChangeCallback (callback) {
     sectionChangeCallbacks.push(callback);
     setTimeout(() => {
-      console.log(currentSection);
-      console.log(nextSection);
       if (currentSection) callback(currentSection.name);
       else if (nextSection) callback(nextSection.name);
     }, 100);
@@ -31,14 +29,14 @@
     
     let contentWrapper = document.body;
 
-    let re = makeDiv('contentFrame', section.name);
+    let re = makeDiv(['contentFrame', section.name]);
     let elem = re;
 
     if (section.name!='intro') {
-      elem = makeDiv('content', section.name);
-      re.appendChild(makeDiv('contentFlex1'));
+      elem = makeDiv(['content', section.name]);
+      re.addDiv('contentFlex1');
       re.appendChild(elem);
-      re.appendChild(makeDiv('contentFlex2'));
+      re.addDiv('contentFlex2');
     }
     
     this.load = () => new Promise ((resolve, reject) => {
@@ -58,7 +56,6 @@
       }
       document.body.classList.add(section.name);
 
-      console.log(section.name);
       if (hta.contentData[section.name] && hta.contentData[section.name].windowTitle) {
 	document.title = hta.contentData[section.name].windowTitle + '  |  Ho Tram Anh';
       } else {
@@ -118,6 +115,7 @@
 
   
   function openSection (sectionName) {
+    console.log(sectionName);
     
     if (currentSection && sectionName == currentSection.name || !hta.sections[sectionName]) return;
     if (inTransition) {
@@ -158,7 +156,7 @@
 
   
   function sectionFromUrl() {
-    let section = window.location.pathname.replace(/^.*\//, '').replace(/\..*/, '');
+    let section = window.location.pathname.replace(/^.*\//, '').replace(/\..*/, '').replace(/#.*/, '');
     return hta.sections[section] ? section : 'intro';
   }
 

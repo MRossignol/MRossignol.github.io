@@ -4,21 +4,14 @@
 
   let formats = ['opus', 'm4a'];
 
+  let loadedRelease = null;
+
   let nowPlaying = null;
   let nextPlaying = null;
   let players = [];
   
   let ready = false;
   let preparing = false;
-
-  let coversArray = [
-    { src: 'img/mediaSessionCover/cover_96.png',  sizes: '96x96',   type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_128.png', sizes: '128x128', type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_192.png', sizes: '192x192', type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_256.png', sizes: '256x256', type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_384.png', sizes: '384x384', type: 'image/png' },
-    { src: 'img/mediaSessionCover/cover_512.png', sizes: '512x512', type: 'image/png' },
-  ];
 
   let playerWidget = null;
 
@@ -27,44 +20,40 @@
   let prepareWidget = () => {
     playerWidget = {};
     ['desktop', 'mobile'].forEach((orientation) => {
-      let player = makeDiv('player', orientation);
+      let player = makeDiv(['player', orientation]);
       playerWidget[orientation] = {
 	title: makeDiv('title'),
-	play: new Image(),
-	pause: new Image(),
-	transition: new Image(),
-	previous: new Image(),
-	next: new Image(),
-	position: document.createElement('input')
+	position: makeElem('input', null, null, (e) => {
+	  e.type = 'range';
+	  e.value = 0;
+	  e.min = 0;
+	  e.max = 1;
+	  e.step = .001;
+	  e.addEventListener('input', (e) => {
+	    preventSliderUpdate = true;
+	  });
+	  e.addEventListener('change', (e) => {
+	    if (nowPlaying) {
+	      let num = players.findIndex(p => p==nowPlaying);
+	      if (num >= 0) {
+		let time = nowPlaying.duration*e.value;
+		broadcastTrackStatusChange(num, 'transition');
+		if (nowPlaying.fastSeek) nowPlaying.fastSeek(time);
+		else nowPlaying.currentTime = time;
+	      }
+	      preventSliderUpdate = false;
+	    }
+	  });
+	})
       };
       let pw = playerWidget[orientation];
-      pw.position.type = 'range';
-      pw.position.value = 0;
-      pw.position.min = 0;
-      pw.position.max = 1;
-      pw.position.step = .001;
-      pw.position.addEventListener('input', (e) => {
-	preventSliderUpdate = true;
-      });
-      pw.position.addEventListener('change', (e) => {
-	if (nowPlaying) {
-	  let num = players.findIndex(p => p==nowPlaying);
-	  if (num >= 0) {
-	    let time = nowPlaying.duration*pw.position.value;
-	    broadcastTrackStatusChange(num, 'transition');
-	    if (nowPlaying.fastSeek) nowPlaying.fastSeek(time);
-	    else nowPlaying.currentTime = time;
-	  }
-	  preventSliderUpdate = false;
-	}
-      });
       ['play', 'pause', 'transition', 'previous', 'next'].forEach((button) => {
-	pw[button].classList.add(button);
 	let name = (button=='transition') ? 'transition_anim' : button;
-	pw[button].src = 'img/icons/'+name+'_white.svg';
-	pw[button].addEventListener('click', () => { playerWidgetClick(button); });
+	pw[button] = makeImage(button, `img/icons/${name}_white.svg`, '', (e) => {
+	  e.addEventListener('click', () => { playerWidgetClick(button); });
+	});
       });
-      Object.keys(playerWidget[orientation]).forEach((elem) => {
+      Object.keys(pw).forEach((elem) => {
 	player.appendChild(pw[elem]);
       });
       if (orientation=='mobile') {
@@ -84,12 +73,12 @@
       let pw = playerWidget[or];
       switch(status) {
       case 'playing':
-	pw.title.innerHTML = hta.contentData.streetlights.tracks[trackNum].title;
+	pw.title.innerHTML = loadedRelease.tracks[trackNum].title;
 	pw.play.style.display = 'none';
 	pw.pause.style.display = 'block';
 	pw.transition.style.display = 'none';
 	pw.previous.style.display = trackNum > 0 ? 'block' : 'none';
-	pw.next.style.display = trackNum < hta.contentData.streetlights.tracks.length-1 ? 'block' : 'none';
+	pw.next.style.display = trackNum < loadedRelease.tracks.length-1 ? 'block' : 'none';
 	break;
       case 'transition':
 	if (players[trackNum] == nowPlaying || players[trackNum] == nextPlaying) {
@@ -124,19 +113,19 @@
     case 'clickPlay':
       sendEvent('play_attempt', {
 	track_id: trackNum+1,
-	track_title: hta.contentData.streetlights.tracks[trackNum].title
+	track_title: loadedRelease.tracks[trackNum].title
       });
       break;
     case 'playing':
       sendEvent('play_start', {
 	track_id: trackNum+1,
-	track_title: hta.contentData.streetlights.tracks[trackNum].title
+	track_title: loadedRelease.tracks[trackNum].title
       });
       break;
     case 'ended':
       sendEvent('play_end', {
 	track_id: trackNum+1,
-	track_title: hta.contentData.streetlights.tracks[trackNum].title,
+	track_title: loadedRelease.tracks[trackNum].title,
 	track_played_time: Math.round(players[trackNum].duration),
 	track_played_percent: 100,
 	track_played_complete: true
@@ -147,7 +136,7 @@
 	let percent = Math.round(100*(players[trackNum].currentTime/players[trackNum].duration));
 	sendEvent('play_end', {
 	  track_id: trackNum+1,
-	  track_title: hta.contentData.streetlights.tracks[trackNum].title,
+	  track_title: loadedRelease.tracks[trackNum].title,
 	  track_played_time: Math.round(players[trackNum].currentTime),
 	  track_played_percent: percent,
 	  track_played_complete: percent >= 95
@@ -158,7 +147,7 @@
       let percent = Math.round(100*(players[trackNum].currentTime/players[trackNum].duration));
       sendEvent('play_end', {
 	track_id: trackNum+1,
-	track_title: hta.contentData.streetlights.tracks[trackNum].title,
+	track_title: loadedRelease.tracks[trackNum].title,
 	track_played_time: Math.round(players[trackNum].currentTime),
 	track_played_percent: percent,
 	track_played_complete: percent >= 95
@@ -174,7 +163,7 @@
   };
   
   var broadcastTrackStatusChange = (trackNum, status) => {
-    trackStatusListeners.forEach(cb => cb(trackNum, status));
+    trackStatusListeners.forEach(cb => cb(loadedRelease.key, trackNum, status));
     updatePlayerState(trackNum, status);
     sendPlayerAnalytics(trackNum, status);
   };
@@ -249,6 +238,11 @@
       num = players.findIndex(p => p==nowPlaying);
       if (num < 0) return;
     }
+    if (typeof(num)=='string' && num.indexOf('/')>=0) {
+      let [release, n] = num.split('/');
+      preparePlayer(release);
+      num = 1*n;
+    }
     if (fading[num]) return;
     nextPlaying = players[num];
     nextPlaying.preload = 'auto';
@@ -281,10 +275,10 @@
 	nowPlaying.addEventListener('timeupdate', updatePlayerPosition);
 	if (navigator.mediaSession) {
 	  navigator.mediaSession.metadata = new MediaMetadata( {
-	    title: hta.contentData.streetlights.tracks[num].title,
+	    title: loadedRelease.tracks[num].title,
 	    artist: 'Ho Tram Anh',
-	    album: 'The Poetry Of Streetlights',
-	    artwork: coversArray
+	    album: loadedRelease.title,
+	    artwork: loadedRelease.coversArray
 	  });
 	}
 	setTimeout(() => {
@@ -295,20 +289,34 @@
     }
   };
 
-  var preparePlayer = () => {
-    if (preparing || ready) return;
-    preparing = true;
+  var preparePlayer = (key) => {
+    if (loadedRelease && key == loadedRelease.key) return;
+    console.log('Preparing', key);
+    let existing = document.querySelector('div.audioHolder');
+    if (existing) {
+      document.body.removeChild(existing);
+    }
+    players = [];
 
     let holder = makeDiv('audioHolder');
+    loadedRelease = hta.contentData.releases[key];
+    loadedRelease.coversArray = [];
+    for (let s of [96, 128, 192, 256, 384, 512]) {
+      loadedRelease.coversArray.push({
+	src: `img/mediaSessionCover/${key}_${s}.png`,
+	sizes: `${s}x${s}`,
+	type: 'image/png'
+      });
+    }
 
-    hta.contentData.streetlights.tracks.forEach((t, i) => {
+    loadedRelease.tracks.forEach((t, i) => {
       if (t.audio) {
 	let elem = document.createElement('audio');
 	elem.id = 'audioTrack-'+i;
 	elem.preload = 'none';
 	formats.forEach((f) => {
 	  let src = document.createElement('source');
-	  src.src = 'audio/'+f+'/'+t.audio+'.'+f;
+	  src.src = `audio/${key}/${f}/${t.audio}.${f}`;
 	  elem.appendChild(src);
 	});
 	elem.addEventListener('ended', moveToNext);
@@ -324,14 +332,23 @@
     document.body.appendChild(holder);
     
     ready = true;
-    preparing = false;
   };
 
   var registerTrackStatusListener = (callback) => {
     trackStatusListeners.push(callback);
   };
 
+  var unregisterTrackStatusListener = (callback) => {
+    trackStatusListeners = trackStatusListeners.filter(c => c!=callback);
+  };
+
   var trackStatus = (num) => {
+    if (typeof(num)=='string' && num.indexOf('/')>=0) {
+      let [release, n] = num.split('/');
+      if (release != loadedRelease.key)
+	return 'pause';
+      num = n;
+    }
     if (players[num] == nowPlaying) {
       return nowPlaying.ended || nowPlaying.paused ? 'pause' : 'playing';
     } else {
@@ -341,11 +358,15 @@
   
   hta.player = {
 
-    prepare: preparePlayer,
+    prepare: (release) => {
+      if (!loadedRelease) preparePlayer(release);
+    },
 
     play: playTrack,
 
-    onTrackStatusChange: registerTrackStatusListener,
+    trackStatusChange: registerTrackStatusListener,
+
+    stopTrackingStatusChange: unregisterTrackStatusListener,
 
     trackStatus: trackStatus,
 
@@ -354,3 +375,5 @@
   };
   
 }) ();
+
+

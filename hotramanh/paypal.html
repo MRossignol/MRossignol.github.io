@@ -1,0 +1,83 @@
+<html>
+  <body>
+    <div id="smart-button-container">
+      <div style="text-align: center"><label for="amount">Amount: </label><input name="amountInput" type="number" id="amount" style="width: 100px" value="" ><span> USD</span></div>
+      <p id="priceLabelError" style="visibility: hidden; color:red; text-align: center;">Please enter a price</p>
+      <div style="text-align: center; margin-top: 0.625rem;" id="paypal-button-container"></div>
+    </div>
+    <script src="https://www.paypal.com/sdk/js?client-id=AUmkoVRJtcjkkzsf6qgSPiYjwf5kN93exbsqlFYO32mrwsC63YLeK4M5m78rePlXxzEiFnw4KcDSNkt7&enable-funding=venmo&currency=USD" data-sdk-integration-source="button-factory"></script>
+    <script>
+      function initPayPalButton() {
+	var amount = document.querySelector('#smart-button-container #amount');
+	var priceError = document.querySelector('#smart-button-container #priceLabelError');
+
+	var purchase_units = [];
+	purchase_units[0] = {};
+	purchase_units[0].amount = {};
+
+	var elArr = [amount];
+
+	function validate(event) {
+	  return event.value.length > 0;
+	}
+
+	paypal.Buttons({
+	  style: {
+            color: 'black',
+            shape: 'pill',
+            label: 'paypal',
+            layout: 'vertical',
+            
+	  },
+
+	  onInit: function (data, actions) {
+            actions.disable();
+
+            elArr.forEach(function (item) {
+              item.addEventListener('keyup', function (event) {
+		var result = elArr.every(validate);
+		if (result) {
+		  actions.enable();
+		} else {
+		  actions.disable();
+		}
+              });
+            });
+	  },
+
+	  onClick: function () {
+            priceError.style.visibility = amount.value.length < 1 ? "visible" : "hidden";
+            purchase_units[0].description = 'DONATION_'+localStorage.getItem('donationEmail');
+            purchase_units[0].amount.value = amount.value;
+	  },
+
+	  createOrder: function (data, actions) {
+            return actions.order.create({
+              purchase_units: purchase_units,
+            });
+	  },
+
+	  onApprove: function (data, actions) {
+            return actions.order.capture().then(function (orderData) {
+              // Full available details
+              console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+
+              // Show a success message within this page, e.g.
+              const element = document.getElementById('paypal-button-container');
+              element.innerHTML = '';
+              element.innerHTML = '<h4>Thank you for your donation!</h4>';
+
+              // Or go to another URL:  actions.redirect('thank_you.html');
+              
+            });
+	  },
+
+	  onError: function (err) {
+            console.log(err);
+	  }
+	}).render('#paypal-button-container');
+      }
+      initPayPalButton();
+    </script>
+  </body>
+</html>

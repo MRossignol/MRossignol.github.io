@@ -43,8 +43,8 @@
   };
   
   let makeMenu = () => {
-    let desktopRoot = makeDiv('contentFrame', 'above', 'desktop');
-    let menuHolder = makeDiv('contentFlex1', 'menuHolder');
+    let desktopRoot = makeDiv(['contentFrame', 'above', 'desktop']);
+    let menuHolder = makeDiv(['contentFlex1', 'menuHolder']);
     let menuFlex1 = makeDiv('menuFlex1');
     let flexMenuHolder = makeDiv('flexMenuHolder');
     let menuFlex2 = makeDiv('menuFlex2');
@@ -62,15 +62,11 @@
       menu.appendChild(entry.elem);
     });
     flexMenuHolder.appendChild(menu);
-    menuHolder.appendChild(menuFlex1);
-    menuHolder.appendChild(flexMenuHolder);
-    menuHolder.appendChild(menuFlex2);
-    desktopRoot.appendChild(menuHolder);
-    desktopRoot.appendChild(content);
-    desktopRoot.appendChild(contentFlex2);
+    menuHolder.appendChildren([menuFlex1, flexMenuHolder, menuFlex2]);
+    desktopRoot.appendChildren([menuHolder, content, contentFlex2]);
     document.body.appendChild(desktopRoot);
 
-    let mobileRoot = makeDiv('menu', 'mobile');
+    let mobileRoot = makeDiv(['menu', 'mobile']);
     menuEntries.forEach((entry) => {
       entry.elem = document.createElement('a');
       entry.elem.classList.add('menuItem');

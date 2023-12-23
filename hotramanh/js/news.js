@@ -11,7 +11,14 @@
     preload: () => {},
 
     getContent: (root) => new Promise((resolve, reject) => {
-      resolve('<div><div class="pageTitle">News</div><iframe src="include-news.html"></iframe></div>');
+      let content = document.createElement('div');
+      content.addDiv('pageTitle', 'News');
+      content.appendChild(socialBox());
+      let iframe = document.createElement('iframe');
+      iframe.src = 'include-news.html';
+      content.appendChild(iframe);
+      root.appendChild(content);
+      resolve();
     }),
 
     layout: () => {},

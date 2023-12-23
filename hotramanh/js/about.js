@@ -10,6 +10,16 @@
     });
     return res+'</div>';
   };
+
+  let makeContent = (root) => {
+    let content = hta.contentData.about;
+    root.addDiv(null, [
+      makeDiv('pageTitle', content.title),
+      ...content.paragraphs.map(html => makeElem('p', null, html)),
+      makeElem('hr'),
+      socialBox()
+    ]);
+  };
   
   hta.navigation.registerSection({
 
@@ -19,8 +29,9 @@
 
     preload: () => {},
 
-    getContent: () => new Promise((resolve, reject) => {
-      resolve(html());
+    getContent: (root) => new Promise((resolve, reject) => {
+      makeContent(root);
+      resolve();
     }),
 
     layout: () => {},

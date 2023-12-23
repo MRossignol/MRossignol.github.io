@@ -1,0 +1,73 @@
+{
+  "id": "3SN53968GX916825D",
+  "intent": "CAPTURE",
+  "status": "COMPLETED",
+  "purchase_units": [
+    {
+      "reference_id": "default",
+      "amount": {
+        "currency_code": "USD",
+        "value": "0.50"
+      },
+      "payee": {
+        "email_address": "hotramanh52@gmail.com",
+        "merchant_id": "UPQ7VYUCGBADL"
+      },
+      "description": "WEB_sonitus.noctuae@gmail.com",
+      "shipping": {
+        "name": {
+          "full_name": "Mathias Rossignol"
+        },
+        "address": {
+          "address_line_1": "13 rue de la Mailleraye",
+          "address_line_2": "Escalier Roussillon",
+          "admin_area_2": "Le Havre",
+          "postal_code": "76600",
+          "country_code": "FR"
+        }
+      },
+      "payments": {
+        "captures": [
+          {
+            "id": "1KC334329S298531F",
+            "status": "COMPLETED",
+            "amount": {
+              "currency_code": "USD",
+              "value": "0.50"
+            },
+            "final_capture": true,
+            "seller_protection": {
+              "status": "ELIGIBLE",
+              "dispute_categories": [
+                "ITEM_NOT_RECEIVED",
+                "UNAUTHORIZED_TRANSACTION"
+              ]
+            },
+            "create_time": "2022-11-11T01:52:59Z",
+            "update_time": "2022-11-11T01:52:59Z"
+          }
+        ]
+      }
+    }
+  ],
+  "payer": {
+    "name": {
+      "given_name": "Mathias",
+      "surname": "Rossignol"
+    },
+    "email_address": "mathias.rossignol@gmail.com",
+    "payer_id": "5V8G2PRKGXVBN",
+    "address": {
+      "country_code": "FR"
+    }
+  },
+  "create_time": "2022-11-11T01:52:30Z",
+  "update_time": "2022-11-11T01:52:59Z",
+  "links": [
+    {
+      "href": "https://api.paypal.com/v2/checkout/orders/3SN53968GX916825D",
+      "rel": "self",
+      "method": "GET"
+    }
+  ]
+}
