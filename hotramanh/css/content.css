@@ -384,15 +384,13 @@ body.mobile div.content.about > div {
 /*  EP  */
 /********/
 
-div.content.wetlands > div {
+body.desktop div.content.wetlands > div {
     background-color: rgba(0, 0, 0, .4);
 }
 
-div.content.wetlands {
-    text-shadow: none;
-    margin-bottom: 40px;
+body.mobile div.content.wetlands > div {
+    background-color: rgba(0, 0, 0, .2);
 }
-
 
 div.content.wetlands div.albumTrack {
     background-color: rgba(255, 255, 255, .2);

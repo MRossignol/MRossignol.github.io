@@ -109,10 +109,10 @@
 	insertText: ['You can listen to the whole EP for free here, as much as you like!', 'If you like my music, please consider <a href="#donation"><b>making a donation</b></a> to help me continue&hellip; As a thank you, you will receive a link to download the whole EP in CD quality.'],
 	tracks: [
 	  {title: 'Wetlands', audio:'01_Wetlands'},
-	  {title: 'Ripple Silhouettes', audio:'02_Ripple_Silhouettes'},
+	  {title: 'Ripple/Silhouettes', audio:'02_Ripple_Silhouettes'},
 	  {title: 'Exile', audio:'03_Exile'},
 	  {title: 'How We Were', audio:'04_How_we_were'},
-	  {title: 'Out Of My Head', audio:'05_Out_of_my_head'}
+	  {title: 'Out Of My Head (Tram Anh\'s version)', audio:'05_Out_of_my_head'}
 	],
 	credits: [
 	  ['Ho Tram Anh', 'Composition, arrangement, recording, performance, production and mixing'],
