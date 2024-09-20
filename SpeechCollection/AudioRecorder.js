@@ -14,9 +14,7 @@ class AudioRecorder {
     
     const stream = await navigator.mediaDevices.getUserMedia({
       video: false,
-      audio: {
-	channelCount: 1
-      },
+      audio: true
     });
 
     const track = stream.getAudioTracks()[0];
