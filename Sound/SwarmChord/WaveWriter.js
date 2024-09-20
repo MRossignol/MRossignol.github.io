@@ -26,16 +26,14 @@ function WaveWriter (abuffer) {
     setUint32(0x46464952);                         // "RIFF"
     setUint32(length - 8);                         // file length - 8
     setUint32(0x45564157);                         // "WAVE"
-
     setUint32(0x20746d66);                         // "fmt " chunk
     setUint32(16);                                 // length = 16
     setUint16(1);                                  // PCM (uncompressed)
-    setUint16(numOfChan);
-    setUint32(abuffer.sampleRate);
+    setUint16(numOfChan);                          // Number of channels
+    setUint32(abuffer.sampleRate);                 // Sample rate
     setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
     setUint16(numOfChan * 2);                      // block-align
     setUint16(16);                                 // 16-bit (hardcoded in this demo)
-
     setUint32(0x61746164);                         // "data" - chunk
     setUint32(length - pos - 4);                   // chunk length
 

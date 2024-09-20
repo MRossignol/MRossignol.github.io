@@ -1,0 +1,31 @@
+div.rotary_knob {
+    position: relative;
+}
+
+div.rotary_knob canvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+div.rotary_knob div.value {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 12px;
+    font-family: sans-serif;
+    text-align: right;
+    padding-right: 2px;
+    width: 36px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+div.rotary_knob div.unit {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 12px;
+    font-family: sans-serif;
+    text-align: left;
+}
