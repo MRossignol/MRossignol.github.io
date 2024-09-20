@@ -17,8 +17,7 @@ class AudioRecorder {
       audio: {
 	echoCancellation: true,
 	noiseSuppression: false,
-	autoGainControl: false,
-	channelCount: 1
+	autoGainControl: false
       },
     });
 
