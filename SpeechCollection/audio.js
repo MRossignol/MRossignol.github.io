@@ -17,10 +17,17 @@ async function initAudio() {
 
   const visualizer = document.querySelector('div#visualizer');
   const visualizerBlack = document.querySelector('div#visualizer-black');
+
+  var currentMax = 0;
   
   audioRecorder.port.addEventListener('message', event => {
-    const w = event.data.max > 1 ? 0 : 1 - event.data.max;
-    visualizerBlack.style.width = Math.round(window.innerWidth*w)+'px';
+    const w = event.data.max > 1 ? 1 : event.data.max;
+    if (w > currentMax) {
+      currentMax = Math.min(w, currentMax+.1);
+    } else {
+      currentMax = Math.max(w, currentMax-.05);
+    }
+    visualizerBlack.style.width = Math.round(window.innerWidth*(1-currentMax))+'px';
     buffers.push(event.data.buffer);
   });
   audioRecorder.port.start();
