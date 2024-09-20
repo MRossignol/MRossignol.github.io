@@ -25,7 +25,7 @@ async function initAudio() {
     if (w > currentMax) {
       currentMax = Math.min(w, currentMax+.02);
     } else {
-      currentMax = Math.max(w, currentMax-.01);
+      currentMax = Math.max(w, currentMax-.005);
     }
     visualizerBlack.style.width = Math.round(window.innerWidth*(1-currentMax))+'px';
     buffers.push(event.data.buffer);

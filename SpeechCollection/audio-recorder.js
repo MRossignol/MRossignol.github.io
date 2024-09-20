@@ -1,4 +1,6 @@
 class AudioRecorder extends AudioWorkletProcessor {
+
+  smoothedMax = 0;
   
   static get parameterDescriptors () {
     return [
@@ -18,8 +20,13 @@ class AudioRecorder extends AudioWorkletProcessor {
     const buffer = Array.from(inputs[0][0]);
     
     if (buffer.length >= 1) {
-      const max = buffer.reduce((acc, x) => Math.max(acc, x));
-      this.port.postMessage({buffer: buffer, max: max});
+      const max = buffer.reduce((acc, x) => Math.max(acc, Math.abs(x)));
+      if (max > this.smoothedMax) {
+	this.smoothedMax = max;
+      } else {
+	this.smoothedMax = Math.max(max, this.smoothedMax-.001);
+      }
+      this.port.postMessage({buffer: buffer, instantMax: max, smoothedMax: this.smoothedMax});
     }
     return true;
   }

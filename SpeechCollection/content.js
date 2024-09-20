@@ -1,4 +1,6 @@
 (function() {
+
+  var audioRecorder = new AudioRecorder();
   
   const content = {
     intro: {
@@ -17,12 +19,28 @@
 	'Try to adjust your speech volume and distance to the phone so that the maximum stays in the blue frame.',
 	'Go ahead, practice a bit.'
       ],
-      buttons: 'Next'
+      buttons: 'Next',
+      run: () => {
+	document.querySelector('div#visualizer').style.display = 'block';
+	document.querySelector('div#buttons').firstChild.style.visibility = 'hidden';
+	audioRecorder.addEventListener('canStep', (data) => {
+	  if (data.instantMax > .2) {
+	    audioRecorder.removeEventListener('canStep');
+	    document.querySelector('div#buttons').firstChild.style.visibility = 'visible';
+	  }
+	});
+      }
     },
     
   };
 
   var currentPage = 'intro';
+
+  var visualizerBlack = null;
+
+  audioRecorder.addEventListener('viz', (data) => {
+    visualizerBlack.style.width = Math.round(window.innerWidth*(1-Math.sqrt(data.smoothedMax)))+'px';
+  });
 
   function gotoPage(section) {
     window.currentPage = section;
@@ -67,12 +85,13 @@
     } else {
       buttonsDiv.style.display = 'none';
     }
+    if (data.run) data.run();
   }
 
   function buttonClick(section, bText) {
     switch(section) {
     case 'intro':
-      initAudio();
+      audioRecorder.init();
       gotoPage('warmup');
       break;
     }
@@ -85,6 +104,7 @@
       contentHolder.style.width = w+'px';
       contentHolder.style.left = Math.round((window.innerWidth-w)/2)+'px';
     }
+    visualizerBlack = document.querySelector('div#visualizer-black');
     gotoPage('intro');
   });
 

@@ -12,6 +12,7 @@ div#visualizer {
     height: 4vh;
     width: 100vw;
     background: linear-gradient(90deg, rgba(0,50,0,1) 0%, rgba(0,200,0,1) 30%, rgba(220,220,0,1) 70%, rgba(255,0,0,1) 100%);
+    display: none;
 }
 
 div#visualizer-black {
