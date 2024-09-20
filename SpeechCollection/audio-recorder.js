@@ -24,7 +24,7 @@ class AudioRecorder extends AudioWorkletProcessor {
       if (max > this.smoothedMax) {
 	this.smoothedMax = max;
       } else {
-	this.smoothedMax = Math.max(max, this.smoothedMax-.001);
+	this.smoothedMax = Math.max(max, this.smoothedMax-.005);
       }
       this.port.postMessage({buffer: buffer, instantMax: max, smoothedMax: this.smoothedMax});
     }
