@@ -79,9 +79,9 @@
   }
 
   window.addEventListener('load', () => {
-    if (window.innerHeight < 1.8*window.innerWidth) {
+    if (window.innerHeight < 1.5*window.innerWidth) {
       const contentHolder = document.querySelector('div#contentHolder');
-      let w = Math.round(window.innerHeight/1.8);
+      let w = Math.round(window.innerHeight/1.5);
       contentHolder.style.width = w+'px';
       contentHolder.style.left = Math.round((window.innerWidth-w)/2)+'px';
     }
