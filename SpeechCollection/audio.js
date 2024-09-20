@@ -23,9 +23,9 @@ async function initAudio() {
   audioRecorder.port.addEventListener('message', event => {
     const w = event.data.max > 1 ? 1 : event.data.max;
     if (w > currentMax) {
-      currentMax = Math.min(w, currentMax+.1);
+      currentMax = Math.min(w, currentMax+.02);
     } else {
-      currentMax = Math.max(w, currentMax-.05);
+      currentMax = Math.max(w, currentMax-.01);
     }
     visualizerBlack.style.width = Math.round(window.innerWidth*(1-currentMax))+'px';
     buffers.push(event.data.buffer);
