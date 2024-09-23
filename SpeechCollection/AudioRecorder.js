@@ -11,11 +11,34 @@ class AudioRecorder {
   }
 
   async init () {
-    
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: false,
-      audio: true
-    });
+
+    // Various audio settings to try
+    // We'd rather avoid autoGainControl and noiseSuppression if possible, and get mono audio
+    // echoCancellation is desirable, and generally on if available, so we don't specify it
+    // The last "true" setting means "give me whatever you have", without control on the options
+    const audioSettings = [
+      { autoGainControl:false, noiseSuppression: false, channelCount: 1 },
+      { autoGainControl:false, noiseSuppression: false, channelCount: 2 },
+      { autoGainControl:false, noiseSuppression: true,  channelCount: 1 },
+      { autoGainControl:true,  noiseSuppression: false, channelCount: 1 },
+      { autoGainControl:true,  noiseSuppression: false, channelCount: 2 },
+      { autoGainControl:true,  noiseSuppression: true,  channelCount: 1 },
+      true
+    ];
+
+    var stream = null;
+    for (let setting of audioSettings) {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: false,
+          audio: setting
+        });
+      } catch (e) {} 
+      if (stream) break;
+    }
+    if (!stream) {
+      return false;
+    }
 
     const track = stream.getAudioTracks()[0];
     const settings = track.getSettings();
@@ -27,9 +50,6 @@ class AudioRecorder {
     const mediaStreamSource = audioContext.createMediaStreamSource(stream);
     const audioRecorder = new AudioWorkletNode(audioContext, 'audio-recorder');
     const buffers = [];
-
-    const visualizer = document.querySelector('div#visualizer');
-    const visualizerBlack = document.querySelector('div#visualizer-black');
 
     var currentMax = 0;
     
@@ -44,7 +64,7 @@ class AudioRecorder {
     mediaStreamSource.connect(audioRecorder);
     audioRecorder.connect(audioContext.destination);
     audioRecorder.parameters.get('isRecording').setValueAtTime(1, audioContext.currentTime);
-    
+    return true;
   }
 
   addEventListener(name, func) {

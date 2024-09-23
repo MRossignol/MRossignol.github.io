@@ -1,5 +1,21 @@
 
-function WaveWriter (buffers, sampleRate) {  
+function WaveWriter (buffers, sampleRate) {
+  // Select the channel with the highest peak
+  let loudestChannel = 0;
+  let maxValue = 0;
+  for (let buf of buffers) {
+    buf.forEach((chan, num) => {
+      let max = chan.reduce((acc, v) => Math.max(acc, Math.abs(v)), 0);
+      if (max > maxValue) {
+        maxValue = max;
+        loudestChannel = num;
+      }
+    });
+  }
+  buffers.forEach((buf, i) => {
+    buffers[i] = buf[loudestChannel];
+  });
+  
   const nbChannels = 1;
   var nbSamples = buffers.reduce((acc, b) => acc+b.length, 0);
   console.log(`${nbSamples} samples`);
@@ -7,6 +23,7 @@ function WaveWriter (buffers, sampleRate) {
   var buffer = new ArrayBuffer(length);
   var view = new DataView(buffer);
   var pos = 0;
+
 
   function setInt16Sample(data) {
     const v = (0.5 + data < 0 ? data * 32768 : data * 32767)|0;
@@ -44,11 +61,8 @@ function WaveWriter (buffers, sampleRate) {
     setUint32(0x61746164);                   // "data" - chunk
     setUint32(length - pos - 4);             // chunk length
 
-    var i, offset;
-
     if (normalized) {
-      const max = buffers.reduce((accum, buf) => Math.max(accum, buf.reduce((acc, x) => Math.max(acc, Math.abs(x)), 0)), 0);
-      const amp = .99 / max;
+      const amp = .99 / maxValue; // Computed when selecting loudest channel
       for (let b of buffers) {
 	for (let v of b) {
 	  setInt16Sample(v * amp); // normalize

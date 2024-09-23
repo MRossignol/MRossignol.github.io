@@ -1,8 +1,14 @@
 (function() {
 
   var audioRecorder = new AudioRecorder();
+
+  var visualizerBlack = null;
   
   const content = {
+    noAudio: {
+      title: 'Sorry,',
+      text: ['We couldn\'t find an audio device to record from.', 'Did you allow the page to access your microphone?', 'Please reload the page to try again, or try with another browser or device.']
+    },
     intro: {
       title: 'Welcome',
       text: [
@@ -22,6 +28,7 @@
       buttons: 'Next',
       run: () => {
 	document.querySelector('div#visualizer').style.display = 'block';
+	document.querySelector('div#visualizer-frame').style.display = 'block';
 	document.querySelector('div#buttons').firstChild.style.visibility = 'hidden';
 	audioRecorder.addEventListener('canStep', (data) => {
 	  if (data.instantMax > .2) {
@@ -35,8 +42,6 @@
   };
 
   var currentPage = 'intro';
-
-  var visualizerBlack = null;
 
   audioRecorder.addEventListener('viz', (data) => {
     visualizerBlack.style.width = Math.round(window.innerWidth*(1-Math.sqrt(data.smoothedMax)))+'px';
@@ -88,16 +93,28 @@
     if (data.run) data.run();
   }
 
-  function buttonClick(section, bText) {
+  async function buttonClick(section, bText) {
     switch(section) {
     case 'intro':
-      audioRecorder.init();
-      gotoPage('warmup');
+      if (await audioRecorder.init()) {
+        gotoPage('warmup');
+      } else {
+        gotoPage('noAudio');
+      }
       break;
     }
   }
 
   window.addEventListener('load', () => {
+    const log = (data) => {
+      document.querySelector('pre#console').innerHTML = JSON.stringify(data, null, 2);
+    };
+    globalThis.console = {
+      log: log,
+      error: log,
+      warn: log,
+      info: log
+    };
     if (window.innerHeight < 1.5*window.innerWidth) {
       const contentHolder = document.querySelector('div#contentHolder');
       let w = Math.round(window.innerHeight/1.5);

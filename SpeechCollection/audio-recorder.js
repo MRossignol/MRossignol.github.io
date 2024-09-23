@@ -17,17 +17,25 @@ class AudioRecorder extends AudioWorkletProcessor {
     if (parameters.isRecording[0] != 1) {
       return false;
     }
-    const buffer = Array.from(inputs[0][0]);
-    
-    if (buffer.length >= 1) {
-      const max = buffer.reduce((acc, x) => Math.max(acc, Math.abs(x)));
-      if (max > this.smoothedMax) {
-	this.smoothedMax = max;
-      } else {
-	this.smoothedMax = Math.max(max, this.smoothedMax-.005);
-      }
-      this.port.postMessage({buffer: buffer, instantMax: max, smoothedMax: this.smoothedMax});
+    if (inputs[0].length==0 || inputs[0][0].length==0) {
+      return true;
     }
+    const buffer = [];
+    var max = 0;
+    for (let b of inputs[0]) {
+      const buf = Array.from(b);
+      const m = buf.reduce((acc, x) => Math.max(acc, Math.abs(x)), 0);
+      max = Math.max(m, max);
+      buffer.push(buf);
+    }
+    
+    if (max > this.smoothedMax) {
+      this.smoothedMax = max;
+    } else {
+      this.smoothedMax = Math.max(max, this.smoothedMax-.005);
+    }
+    this.port.postMessage({buffer: buffer, instantMax: max, smoothedMax: this.smoothedMax});
+    
     return true;
   }
 }

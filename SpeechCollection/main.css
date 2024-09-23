@@ -24,9 +24,22 @@ div#visualizer-black {
     position: absolute;
     top: 0px;
     right: 0px;
-    width: 30vw;
+    width: 100vw;
     height: 100%;
     background-color: black;
+}
+
+div#visualizer-frame {
+    position: absolute;
+    top: 0px;
+    left: 30vw;
+    height: calc(4vh + 2px);
+    width: 60vw;
+    display: none;
+    border-left: 2px solid #06f;
+    border-right: 2px solid #06f;
+    border-bottom: 2px solid #06f;
+    background-color: rgba(0, 100, 255, .2);
 }
 
 div#contentHolder {
@@ -72,4 +85,17 @@ div#buttons > div {
     font-weight: bold;
     border: 1px solid grey;
     cursor: pointer;
+}
+
+pre#console {
+    display: block;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: auto;
+    font-family: monospace;
+    font-size: 10px;
+    color: white;
+    padding: 10px;
 }
