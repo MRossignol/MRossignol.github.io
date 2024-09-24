@@ -34,11 +34,16 @@ class Visualizer {
     if (this.values.length > this.nbPoints) {
       this.values = this.values.slice(this.values.length-this.nbPoints, this.values.length);
     }
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.context.fillStyle = this.gradient;
-    const width = Math.max(this.xScale, 1);
+    const ctxt = this.context;
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const xScale = this.xScale;
+    const yScale = this.yScale;
+    ctxt.clearRect(0, 0, w, h);
+    ctxt.fillStyle = this.gradient;
+    const stepW = Math.max(1.5*this.xScale, 1);
     this.values.forEach((v, i) => {
-      this.context.fillRect(i*this.xScale, this.canvas.height-v*this.yScale, width, v*this.yScale);
+      ctxt.fillRect(i*xScale, h-v*yScale, stepW, v*yScale);
     });
   }
   

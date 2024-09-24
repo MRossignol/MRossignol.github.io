@@ -27,7 +27,6 @@
       ],
       buttons: 'Next',
       run: () => {
-	document.querySelector('div#visualizer').style.display = 'block';
 	document.querySelector('div#visualizer-frame').style.display = 'block';
 	document.querySelector('div#buttons').firstChild.style.visibility = 'hidden';
 	audioRecorder.addEventListener('canStep', (data) => {
@@ -93,6 +92,7 @@
     switch(section) {
     case 'intro':
       if (await audioRecorder.init()) {
+	document.querySelector('div#visualizer').style.display = 'block';
 	visualizer = new Visualizer(document.querySelector('canvas#visualizer-canvas'), audioRecorder.ac.sampleRate, 2);
 	audioRecorder.addEventListener('viz', (data) => {
 	  visualizer.addPoint(data);
