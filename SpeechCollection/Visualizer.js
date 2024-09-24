@@ -27,7 +27,8 @@ class Visualizer {
       this.xScale = this.canvas.width / this.nbPoints;
       this.yScale = this.canvas.height;
     }
-    this.values.push(data.instantMax);
+    this.values.push(Math.random());
+    // this.values.push(data.instantMax);
   }
 
   draw() {
@@ -42,8 +43,13 @@ class Visualizer {
     ctxt.clearRect(0, 0, w, h);
     ctxt.fillStyle = this.gradient;
     const stepW = Math.max(1.5*this.xScale, 1);
+    ctxt.globalAlpha = 0.5;
     this.values.forEach((v, i) => {
       ctxt.fillRect(i*xScale, h-v*yScale, stepW, v*yScale);
+    });
+    ctxt.globalAlpha = 1;
+    this.values.forEach((v, i) => {
+      ctxt.fillRect(i*xScale, h-v*yScale, stepW, 1);
     });
   }
   
