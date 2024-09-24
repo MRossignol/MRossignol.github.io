@@ -13,16 +13,16 @@
       title: 'Welcome',
       text: [
 	'This tool will allow us to collect samples of your voice',
-	'If your browser asks whether you want to allow microphone access, please accept, otherwise there\'s not much we can do...',
+	'If your browser asks whether you want to allow microphone access, please accept, otherwise there\'s not much we can do&hellip;',
 	'Please make sure you\'re in a quiet place, with a good internet connection, and won\'t be interrupted, then click "Start".'
       ],
       buttons: 'Start'
     },
     warmup: {
       text: [
-	'This bar up there &uarr; shows the volume of the recording.',
+	'This bar up there &uarr; shows the evolution of the volume of the recording.',
 	'You should see it move when you speak. If it doesn\'t move, please try accessing this page with a different browser, or contact us.',
-	'Try to adjust your speech volume and distance to the phone so that the maximum stays in the blue frame.',
+	'Try to adjust your speech volume and distance to the phone so that the peaks reach dark blue, but not red.',
 	'Go ahead, practice a bit.'
       ],
       buttons: 'Next',
@@ -116,6 +116,7 @@
       warn: log,
       info: log
     };
+    console.log(versionTime);
     if (window.innerHeight < 1.5*window.innerWidth) {
       const contentHolder = document.querySelector('div#contentHolder');
       let w = Math.round(window.innerHeight/1.5);
