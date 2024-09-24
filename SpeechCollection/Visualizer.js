@@ -43,7 +43,7 @@ class Visualizer {
     ctxt.fillStyle = this.gradient;
     const stepW = Math.max(1.5*this.xScale, 1);
     this.values.forEach((v, i) => {
-      ctxt.fillRect(i*xScale, 0 /* h-v*yScale */, stepW, h /* v*yScale */);
+      ctxt.fillRect(i*xScale, h-v*yScale, stepW, v*yScale);
     });
   }
   
