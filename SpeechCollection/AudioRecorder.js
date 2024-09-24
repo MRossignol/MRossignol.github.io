@@ -44,11 +44,11 @@ class AudioRecorder {
     const settings = track.getSettings();
     console.log(settings);
 
-    const audioContext = new AudioContext();
-    await audioContext.audioWorklet.addModule('audio-recorder.js');
+    this.ac = new AudioContext();
+    await this.ac.audioWorklet.addModule('audio-recorder.js');
 
-    const mediaStreamSource = audioContext.createMediaStreamSource(stream);
-    const audioRecorder = new AudioWorkletNode(audioContext, 'audio-recorder');
+    const mediaStreamSource = this.ac.createMediaStreamSource(stream);
+    const audioRecorder = new AudioWorkletNode(this.ac, 'audio-recorder');
     const buffers = [];
 
     var currentMax = 0;
@@ -62,8 +62,8 @@ class AudioRecorder {
     audioRecorder.port.start();
 
     mediaStreamSource.connect(audioRecorder);
-    audioRecorder.connect(audioContext.destination);
-    audioRecorder.parameters.get('isRecording').setValueAtTime(1, audioContext.currentTime);
+    audioRecorder.connect(this.ac.destination);
+    audioRecorder.parameters.get('isRecording').setValueAtTime(1, this.ac.currentTime);
     return true;
   }
 
@@ -72,8 +72,8 @@ class AudioRecorder {
     this.eventListeners.push({name: name, callback: func});
   }
 
-  removeEventListener(filter) {
-    this.eventListeners = this.eventListeners.filter(l => l.name != filter && l.callback != filter);
+  removeEventListener(ref) {
+    this.eventListeners = this.eventListeners.filter(l => l.name != ref && l.callback != ref);
   }
 
 }

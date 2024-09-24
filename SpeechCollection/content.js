@@ -2,7 +2,7 @@
 
   var audioRecorder = new AudioRecorder();
 
-  var visualizerBlack = null;
+  var visualizer = null;
   
   const content = {
     noAudio: {
@@ -42,10 +42,6 @@
   };
 
   var currentPage = 'intro';
-
-  audioRecorder.addEventListener('viz', (data) => {
-    visualizerBlack.style.width = Math.round(window.innerWidth*(1-Math.sqrt(data.smoothedMax)))+'px';
-  });
 
   function gotoPage(section) {
     window.currentPage = section;
@@ -97,6 +93,11 @@
     switch(section) {
     case 'intro':
       if (await audioRecorder.init()) {
+	visualizer = new Visualizer(document.querySelector('canvas#visualizer-canvas'), audioRecorder.ac.sampleRate, 2);
+	audioRecorder.addEventListener('viz', (data) => {
+	  visualizer.addPoint(data);
+	});
+	setInterval(() => visualizer.draw(), 50);
         gotoPage('warmup');
       } else {
         gotoPage('noAudio');
@@ -121,7 +122,6 @@
       contentHolder.style.width = w+'px';
       contentHolder.style.left = Math.round((window.innerWidth-w)/2)+'px';
     }
-    visualizerBlack = document.querySelector('div#visualizer-black');
     gotoPage('intro');
   });
 
