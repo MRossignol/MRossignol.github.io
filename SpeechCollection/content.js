@@ -97,7 +97,7 @@
 	audioRecorder.addEventListener('viz', (data) => {
 	  visualizer.addPoint(data);
 	});
-	setInterval(() => visualizer.draw(), 50);
+	setInterval(() => visualizer.draw(), 30);
         gotoPage('warmup');
       } else {
         gotoPage('noAudio');

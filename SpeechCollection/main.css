@@ -4,7 +4,7 @@
 }
 
 body {
-    background-color: #787090;
+    background-color: #eef;
     padding: 0px;
     margin: 0px;
     font-family: sans-serif;
@@ -14,9 +14,10 @@ div#visualizer {
     position: absolute;
     top: 0px;
     left: 0px;
-    height: 4vh;
+    height: 8vh;
     width: 100vw;
     display: none;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 15px;
 }
 
 canvas#visualizer-canvas {
@@ -25,7 +26,7 @@ canvas#visualizer-canvas {
     left: 0px;
     width: 100vw;
     height: 100%;
-    background-color: black;
+    background-color: white;
 }
 
 div#visualizer-frame {
@@ -49,7 +50,7 @@ div#contentHolder {
     left: 5vw;
     border-radius: 1em;
     padding: 2em;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 15px;
 }
 
 div#title {

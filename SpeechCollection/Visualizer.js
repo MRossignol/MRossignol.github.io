@@ -15,10 +15,10 @@ class Visualizer {
     this.rangeSeconds = rangeSeconds;
     this.context = this.canvas.getContext('2d');
     this.gradient = this.context.createLinearGradient(0, this.canvas.height-1, 0, 0);
-    this.gradient.addColorStop(0, 'rgb(0, 50, 0)');
-    this.gradient.addColorStop(0.3, 'rgb(0, 200, 0)');
-    this.gradient.addColorStop(0.7, 'rgb(220, 220, 0)');
-    this.gradient.addColorStop(1, 'rgb(255, 0, 0)');
+    this.gradient.addColorStop(0, 'rgb(220, 220, 255)');
+    this.gradient.addColorStop(0.3, 'rgb(150, 150, 255)');
+    this.gradient.addColorStop(0.7, 'rgb(100, 100, 255)');
+    this.gradient.addColorStop(1, 'rgb(200, 0, 0)');
   }
 
   addPoint(data) {
@@ -43,7 +43,7 @@ class Visualizer {
     ctxt.fillStyle = this.gradient;
     const stepW = Math.max(1.5*this.xScale, 1);
     this.values.forEach((v, i) => {
-      ctxt.fillRect(i*xScale, h-v*yScale, stepW, v*yScale);
+      ctxt.fillRect(i*xScale, 0 /* h-v*yScale */, stepW, h /* v*yScale */);
     });
   }
   
