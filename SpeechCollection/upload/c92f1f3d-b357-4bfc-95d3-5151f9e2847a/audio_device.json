@@ -1,0 +1,9 @@
+{
+    "autoGainControl": false,
+    "channelCount": 1,
+    "deviceId": "YN+QlzWHSk8WoLuak4Iv2CDQ8y6qa+SY0jaJXz4eR5A=",
+    "echoCancellation": true,
+    "groupId": "CVReseOUT9aJFqeVHY1cSw0u3fxb8Trv+054ERMR+yk=",
+    "noiseSuppression": false,
+    "label": "Default audio input device"
+}

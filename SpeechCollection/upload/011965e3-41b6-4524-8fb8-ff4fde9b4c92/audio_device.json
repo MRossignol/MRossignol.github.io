@@ -1,0 +1,9 @@
+{
+    "autoGainControl": false,
+    "channelCount": 1,
+    "deviceId": "qUFvKdLmPvxSgHAMpYsbQwFPnV/UrioePoGcnNWSJLI=",
+    "echoCancellation": true,
+    "groupId": "JtiofedkikK7jee5LJxBWnAlg9DuHtS+nlliGaRZNls=",
+    "noiseSuppression": false,
+    "label": "Monitor of Sound Blaster Play! 2 Analog Stereo"
+}

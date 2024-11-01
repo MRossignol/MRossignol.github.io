@@ -1,0 +1,12 @@
+{
+    "autoGainControl": false,
+    "channelCount": 1,
+    "deviceId": "default",
+    "echoCancellation": true,
+    "groupId": "05ba050002357b5374379e7d94c58f5d3a88b116a3579a0f47df1fe50cd9468c",
+    "latency": 0.01,
+    "noiseSuppression": false,
+    "sampleRate": 48000,
+    "sampleSize": 16,
+    "voiceIsolation": false
+}

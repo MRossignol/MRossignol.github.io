@@ -1,0 +1,13 @@
+{
+    "autoGainControl": false,
+    "channelCount": 1,
+    "deviceId": "default",
+    "echoCancellation": true,
+    "groupId": "6627dc9c2f0aa47751d5b4beb08422b8c130248b4df06aac07c8ef7c15ae671d",
+    "latency": 0.01,
+    "noiseSuppression": false,
+    "sampleRate": 48000,
+    "sampleSize": 16,
+    "voiceIsolation": false,
+    "label": "Mặc định"
+}

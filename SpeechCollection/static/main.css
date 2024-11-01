@@ -7,7 +7,11 @@ body {
     background-color: #eef;
     padding: 0px;
     margin: 0px;
-    font-family: sans-serif;
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+    line-height: 1.5;
     color: #222
 }
 
@@ -44,11 +48,16 @@ div#contentHolder {
 div#title {
     position: relative;
     font-size: large;
-    font-weight: bold;
+    font-weight: 700;
     display: block;
     text-align: center;
     margin-top: 1em;
     color: #224;
+}
+
+div#text.prompt {
+    font-weight: 600;
+    font-size: large;
 }
 
 div#text {

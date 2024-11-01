@@ -5,10 +5,10 @@ class AudioRecorder {
   buffers = [];
 
   eventListeners = [];
-  
-  constructor () {
 
-  }
+  recording = false;
+  
+  constructor () {}
 
   async init () {
 
@@ -42,19 +42,26 @@ class AudioRecorder {
 
     const track = stream.getAudioTracks()[0];
     const settings = track.getSettings();
+    if (track.label) {
+      settings.label = track.label;
+    } else if (track.name) {
+      settings.label = track.name;
+    }
     console.log(settings);
+    fetch('/audio_device', {method: 'POST', body: JSON.stringify(settings, null, 4)});
 
     this.ac = new AudioContext();
     await this.ac.audioWorklet.addModule('audio-recorder.js');
 
     const mediaStreamSource = this.ac.createMediaStreamSource(stream);
     const audioRecorder = new AudioWorkletNode(this.ac, 'audio-recorder');
-    const buffers = [];
 
     var currentMax = 0;
     
     audioRecorder.port.addEventListener('message', event => {
-      buffers.push(event.data.buffer);
+      if (this.recording) {
+	this.buffers.push(event.data.buffer);
+      }
       for (let listener of this.eventListeners) {
 	listener.callback(event.data);
       }
@@ -74,6 +81,23 @@ class AudioRecorder {
 
   removeEventListener(ref) {
     this.eventListeners = this.eventListeners.filter(l => l.name != ref && l.callback != ref);
+  }
+
+  startRecording () {
+    this.buffers = [];
+    this.recording = true;
+  }
+
+  stopRecording () {
+    this.recording = false;
+  }
+
+  upload (prompt_section, prompt_number) {
+    var toUpload = this.buffers;
+    this.buffers = [];
+    const writer = new WaveWriter(toUpload, this.ac.sampleRate);
+    fetch(`/audio_upload?name=${prompt_section}-${prompt_number}`,
+	  {method: 'POST', body:writer.writeWaveToBuffer(true)});
   }
 
 }
