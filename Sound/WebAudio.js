@@ -66,6 +66,20 @@ class WebAudio {
       param[methodName](point[0], point[1]);
     }
   }
+
+  nuttall (N) {
+    const res = new Float32Array(N);
+    const TWOPI = Math.PI * 2;
+    const a0 = 0.355768,
+	  a1 = 0.487396,
+	  a2 = 0.144232,
+	  a3 = 0.012604;
+    for (let i in res) {
+      let f = TWOPI*i/(N-1);
+      res[i] = a0 - a1*Math.cos(f) +a2*Math.cos(2*f) - a3*Math.cos(3*f);
+    }
+    return res;
+  }
   
   //////////////
   // INTERNAL //
