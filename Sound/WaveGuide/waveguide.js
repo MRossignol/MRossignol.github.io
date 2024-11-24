@@ -5,17 +5,26 @@
   
   async function start() {
     if (started) return;
-    started = true;
-    const buffer = await wa.loadBuffer('cicadas.mp3');
-    const source = wa.bufferSource('source', {buffer: buffer, loop: true},
-				   // wa.filter('filter', {type:'lowpass', frequency:1000, Q: 0.1},
-					     wa.gain('gain', {gain: .5}, [
-					       wa.destination,
-					       wa.delay('delay', {delayTime: 1/55}, 'gain')
-					     ])
-				   // 	    )
-				  );
-    source.start(0);
+    started = true;  
+    await wa.ac.audioWorklet.addModule('envelopeFollower.js');
+    const envelopeFollower = new AudioWorkletNode(wa.ac, 'EnvelopeFollower', {numberOfOutputs: 1, parameterData:{decayFactor: 0.997}});
+    const cicadaGain = wa.gain({gain:0.5}, wa.destination);
+    envelopeFollower.connect(cicadaGain);
+    const buffer = await wa.loadBuffer('cicadas-2.wav');
+    const instrument = await wa.loadBuffer('guitar-3.wav');
+    const cicadaSource = wa.bufferSource('cicadas', {buffer: buffer, loop: true}, envelopeFollower);
+    const guitarSource = wa.bufferSource('guitar', {buffer: instrument, loop: true}, 
+                                         wa.gain('gain', {gain: 0},
+                                                 wa.filter('filter', {type:'lowpass', frequency: 5000, Q:4}, wa.destination)
+                                                )
+				        );
+    envelopeFollower.port.onmessage = (data) => {
+      wa.nodes.filter.frequency.value = 40000*data.data.value*data.data.value*data.data.value;
+      const fadeIn = wa.ac.currentTime < 20 ? (wa.ac.currentTime*wa.ac.currentTime/400) : 1;
+      wa.nodes.gain.gain.value = .7*fadeIn*data.data.value;
+    };
+    cicadaSource.start(0);
+    guitarSource.start(0);
     globalThis.wa = wa;
   }
 
