@@ -15,13 +15,10 @@ class EnvelopeFollowerProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     this.lastVal = 0;
-    this.first = true;
   }
   
   process(inputs, outputs, parameters) {
     if (!inputs.length || !inputs[0].length) return false;
-    const doLog = this.first;
-    if (this.first) this.first = false;
     var m = 0;
     for (let c=0; c<inputs[0].length; c++) {
       const input = inputs[0][c];
@@ -31,7 +28,6 @@ class EnvelopeFollowerProcessor extends AudioWorkletProcessor {
 	output[i] = v;
         const av = Math.abs(v);
         if (av > m) m = av;
-        if (doLog) console.log(v, av, m);
       }
     }
     const df = parameters.decayFactor.length ? parameters.decayFactor[0] : parameters.decayFactor;
